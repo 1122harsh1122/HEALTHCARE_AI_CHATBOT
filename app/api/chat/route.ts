@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { evaluateMedicalSafety, CLINICAL_DISCLAIMER } from '@/lib/guardrails';
-import { queryKnowledgeBase } from '@/lib/rag';
+import { queryKnowledgeBase, isSmallTalk, getSmallTalkResponse } from '@/lib/rag';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     const lastMessage = messages[messages.length - 1];
     const userPrompt = lastMessage.content || '';
 
-    // Step 1: Execute Medical Safety Guardrails Pre-Check
+    // Step 1: Execute Medical Safety Guardrails Pre-Check (Emergency & Dosage requests)
     const safetyAssessment = evaluateMedicalSafety(userPrompt);
 
     if (safetyAssessment.isEmergency) {
@@ -34,7 +34,14 @@ export async function POST(req: NextRequest) {
       return createSafeRefusalStreamResponse(safetyAssessment.safeRefusalMessage || '');
     }
 
-    // Step 2: Execute Kaggle Dataset RAG Retrieval
+    // Step 2: Conversational Intent Router (Small Talk & Greetings Check)
+    // If user query is a greeting, capability question, or pleasantry, return friendly response immediately and skip RAG search
+    if (isSmallTalk(userPrompt)) {
+      const greetingResponse = getSmallTalkResponse(userPrompt);
+      return createConversationalStreamResponse(greetingResponse);
+    }
+
+    // Step 3: Execute Kaggle Dataset RAG Retrieval (Symptom & Disease Knowledge Search)
     const ragResult = queryKnowledgeBase(userPrompt, 3, 2);
 
     const conditionNames = ragResult.conditions.map((c) => c.name);
@@ -120,6 +127,31 @@ function createSafeRefusalStreamResponse(refusalText: string) {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'X-Guardrail-Blocked': 'true'
+    }
+  });
+}
+
+/**
+ * Stream conversational small-talk / greeting response
+ */
+function createConversationalStreamResponse(greetingText: string) {
+  const encoder = new TextEncoder();
+  const chunks = greetingText.match(/.{1,24}/g) || [greetingText];
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      for (const chunk of chunks) {
+        controller.enqueue(encoder.encode(chunk));
+        await new Promise((resolve) => setTimeout(resolve, 15));
+      }
+      controller.close();
+    }
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'X-Intent': 'conversational-greeting'
     }
   });
 }
