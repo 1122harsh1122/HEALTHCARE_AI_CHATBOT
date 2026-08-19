@@ -1,98 +1,60 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Header } from '@/components/Header';
-import { DisclaimerBanner } from '@/components/DisclaimerBanner';
-import { ChatMessage } from '@/components/ChatMessage';
-import { ChatInput } from '@/components/ChatInput';
-import { PromptStarters } from '@/components/PromptStarters';
-import { EmergencyModal } from '@/components/EmergencyModal';
-import { SourceDrawer } from '@/components/SourceDrawer';
-import { ChatMessage as ChatMessageType } from '@/lib/types';
-import { Activity, Download, Sparkles } from 'lucide-react';
-import { getDatasetStats } from '@/lib/dataset-parser';
+import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Activity, Send, AlertTriangle, RotateCcw, Loader2 } from 'lucide-react';
 
-export default function HealthcareChatApp() {
-  const [messages, setMessages] = useState<ChatMessageType[]>([]);
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+const QUICK_SYMPTOMS = [
+  'Fever & Chills',
+  'Throbbing Headache',
+  'Dry Cough',
+  'Chest Pain (Emergency Check)',
+  'Acid Reflux / Heartburn'
+];
+
+export default function HealthcareChatPage() {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
-  const [emergencyModalOpen, setEmergencyModalOpen] = useState(false);
-  const [emergencyTrigger, setEmergencyTrigger] = useState<string | undefined>();
-  const [sourceDrawerOpen, setSourceDrawerOpen] = useState(false);
-  const [activeSources, setActiveSources] = useState<{ conditions?: string[]; faqs?: string[] } | null>(null);
-  const [stats, setStats] = useState<{ totalConditions: number; totalFaqs: number; version: string } | undefined>();
+  const [emergencyAlert, setEmergencyAlert] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Load dataset stats & theme preference on mount
-  useEffect(() => {
-    try {
-      const dbStats = getDatasetStats();
-      setStats({
-        totalConditions: dbStats.totalConditions,
-        totalFaqs: dbStats.totalFaqs,
-        version: dbStats.version
-      });
-    } catch (e) {
-      console.error('Failed to load initial dataset stats', e);
-    }
-
-    const savedTheme = localStorage.getItem('carepulse_theme');
-    if (savedTheme === 'light') {
-      setDarkMode(false);
-      document.documentElement.classList.remove('dark');
-    } else {
-      setDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
-
-  // Theme toggle
-  const toggleTheme = () => {
-    const nextMode = !darkMode;
-    setDarkMode(nextMode);
-    if (nextMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('carepulse_theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('carepulse_theme', 'light');
-    }
-  };
-
-  // Scroll to bottom whenever messages update
+  // Auto-scroll to latest message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  // Handle message submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  // Handle message submission with streaming RAG response
+  const handleSubmit = async (e?: React.FormEvent, customPrompt?: string) => {
+    if (e) e.preventDefault();
+    const promptToSend = customPrompt || input;
+    if (!promptToSend.trim() || isLoading) return;
 
-    const userText = input.trim();
-    setInput('');
-
-    const userMessage: ChatMessageType = {
+    const userMessage: Message = {
       id: `user-${Date.now()}`,
       role: 'user',
-      content: userText,
-      timestamp: new Date().toISOString()
+      content: promptToSend.trim()
     };
 
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
+    setInput('');
     setIsLoading(true);
 
-    const assistantMessageId = `assistant-${Date.now()}`;
-    const initialAssistantMessage: ChatMessageType = {
-      id: assistantMessageId,
+    const assistantId = `assistant-${Date.now()}`;
+    const initialAssistantMessage: Message = {
+      id: assistantId,
       role: 'assistant',
-      content: '',
-      timestamp: new Date().toISOString()
+      content: ''
     };
-
     setMessages([...newMessages, initialAssistantMessage]);
 
     try {
@@ -109,70 +71,41 @@ export default function HealthcareChatApp() {
         throw new Error(`API error: ${response.statusText}`);
       }
 
-      // Parse custom response headers
-      const isEmergency = response.headers.get('X-Is-Emergency') === 'true';
-      const isGuardrailBlocked = response.headers.get('X-Guardrail-Blocked') === 'true';
-      const ragCondsHeader = response.headers.get('X-RAG-Conditions');
-      const ragFaqsHeader = response.headers.get('X-RAG-Faqs');
-
-      let parsedConditions: string[] = [];
-      let parsedFaqs: string[] = [];
-
-      try {
-        if (ragCondsHeader) parsedConditions = JSON.parse(decodeURIComponent(ragCondsHeader));
-        if (ragFaqsHeader) parsedFaqs = JSON.parse(decodeURIComponent(ragFaqsHeader));
-      } catch (e) {
-        // ignore parse error
+      // Check if server triage flagged this as an emergency
+      const isEmergencyHeader = response.headers.get('X-Is-Emergency') === 'true';
+      if (isEmergencyHeader) {
+        setEmergencyAlert(true);
       }
 
-      if (isEmergency) {
-        setEmergencyTrigger(userText);
-        setEmergencyModalOpen(true);
-      }
-
+      // Stream text response chunks
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
 
-      if (!reader) {
-        throw new Error('Response body is not readable');
-      }
+      if (!reader) throw new Error('Response stream not readable');
 
-      let accumulatedContent = '';
-
+      let fullResponse = '';
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-        accumulatedContent += chunk;
+        fullResponse += chunk;
 
         setMessages((prev) =>
           prev.map((msg) =>
-            msg.id === assistantMessageId
-              ? {
-                  ...msg,
-                  content: accumulatedContent,
-                  isEmergencyAlert: isEmergency,
-                  isGuardrailBlocked: isGuardrailBlocked,
-                  ragSources: {
-                    conditions: parsedConditions,
-                    faqs: parsedFaqs
-                  }
-                }
-              : msg
+            msg.id === assistantId ? { ...msg, content: fullResponse } : msg
           )
         );
       }
-    } catch (err: any) {
-      console.error('Chat error:', err);
+    } catch (err) {
+      console.error('Chat request error:', err);
       setMessages((prev) =>
         prev.map((msg) =>
-          msg.id === assistantMessageId
+          msg.id === assistantId
             ? {
                 ...msg,
                 content:
-                  '**Communication Error**: Unable to complete clinical response. Please check your network connection or verify API keys in your environment variables.',
-                isGuardrailBlocked: true
+                  '⚠️ **Connection Notice:** Unable to reach the assistant. Please check your network or environment settings and try again.'
               }
             : msg
         )
@@ -182,143 +115,183 @@ export default function HealthcareChatApp() {
     }
   };
 
-  const handleSelectPrompt = (promptText: string) => {
-    setInput(promptText);
+  const handleQuickChip = (symptom: string) => {
+    setInput(symptom);
   };
 
-  const handleClearChat = () => {
-    if (window.confirm('Are you sure you want to reset the conversation?')) {
-      setMessages([]);
-    }
-  };
-
-  const handleExportTranscript = () => {
-    if (messages.length === 0) return;
-
-    let transcript = `# CarePulse AI Consultation Transcript\nDate: ${new Date().toLocaleString()}\n\n`;
-    messages.forEach((m) => {
-      transcript += `### ${m.role === 'user' ? 'Patient / User' : 'CarePulse Clinical AI'}\n`;
-      transcript += `${m.content}\n\n`;
-    });
-
-    const blob = new Blob([transcript], { type: 'text/markdown;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `carepulse-transcript-${Date.now()}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleOpenSourceViewer = (sources: { conditions?: string[]; faqs?: string[] }) => {
-    setActiveSources(sources);
-    setSourceDrawerOpen(true);
+  const handleResetChat = () => {
+    setMessages([]);
+    setEmergencyAlert(false);
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Top Disclaimer */}
-      <DisclaimerBanner onEmergencyClick={() => setEmergencyModalOpen(true)} />
-
-      {/* Header */}
-      <Header
-        darkMode={darkMode}
-        onToggleTheme={toggleTheme}
-        datasetStats={stats}
-        onOpenDatasetModal={() => {
-          setActiveSources(null);
-          setSourceDrawerOpen(true);
-        }}
-      />
-
-      {/* Main Chat Scroll Container */}
-      <main className="flex-1 flex flex-col justify-between overflow-y-auto">
-        {messages.length === 0 ? (
-          /* Empty / Welcome State */
-          <div className="flex-1 flex flex-col items-center justify-center p-4 max-w-4xl mx-auto w-full">
-            <div className="text-center space-y-3 mb-6 animate-fade-in">
-              <div className="inline-flex p-3.5 rounded-2xl bg-teal-500/10 dark:bg-teal-500/20 text-teal-600 dark:text-teal-400 mb-1 border border-teal-500/20">
-                <Activity className="w-10 h-10" />
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                How can I assist your health inquiry today?
-              </h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
-                Ask about symptoms, disease precautions, evidence-based lifestyle guidance, or explore verified Kaggle healthcare records.
-              </p>
-
-              <div className="flex items-center justify-center gap-2 pt-1 text-xs text-slate-500 dark:text-slate-400">
-                <span className="flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5 text-teal-500" />
-                  RAG-Enhanced
-                </span>
-                <span>•</span>
-                <span>Clinical Guardrails Active</span>
-                <span>•</span>
-                <span>Vercel Serverless Ready</span>
-              </div>
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900">
+      {/* 1. TOP HEADER */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-xs">
+        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 bg-emerald-50 rounded-lg text-emerald-600 border border-emerald-100">
+              <Activity className="w-5 h-5 animate-pulse" />
             </div>
-
-            {/* Prompt Starters */}
-            <PromptStarters onSelectPrompt={handleSelectPrompt} />
+            <h1 className="font-bold text-base tracking-tight text-slate-900">
+              CarePulse AI
+            </h1>
+            <span className="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-0.5 rounded-full font-medium border border-emerald-200">
+              Grounded on Kaggle Dataset
+            </span>
           </div>
-        ) : (
-          /* Active Chat Feed */
-          <div className="flex-1 py-4">
-            <div className="max-w-4xl mx-auto px-4 flex justify-end mb-2">
-              <button
-                onClick={handleExportTranscript}
-                className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition py-1 px-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60"
-              >
-                <Download className="w-3.5 h-3.5" />
-                Export Transcript (.md)
-              </button>
+
+          {messages.length > 0 && (
+            <button
+              onClick={handleResetChat}
+              className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800 transition py-1 px-2 rounded-md hover:bg-slate-100"
+              title="Reset conversation"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset</span>
+            </button>
+          )}
+        </div>
+      </header>
+
+      {/* 2. QUICK SYMPTOM CHIPS */}
+      <section className="bg-white/60 border-b border-slate-200/80 py-2.5 px-4">
+        <div className="max-w-3xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <span className="text-xs font-medium text-slate-400 shrink-0">Quick Topics:</span>
+          {QUICK_SYMPTOMS.map((symptom, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleQuickChip(symptom)}
+              className="bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 text-slate-700 hover:text-emerald-800 text-xs px-3 py-1.5 rounded-full transition shadow-2xs shrink-0 cursor-pointer font-medium"
+            >
+              {symptom}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* 3. MAIN CHAT AREA (SINGLE-COLUMN) */}
+      <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-6 flex flex-col justify-between">
+        {/* Emergency Alert Banner */}
+        {emergencyAlert && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl flex items-start justify-between gap-3 mb-5 shadow-xs animate-fade-in">
+            <div className="flex items-start gap-2.5">
+              <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+              <p className="text-sm font-medium leading-relaxed">
+                ⚠️ <strong>Emergency Warning:</strong> Please call emergency services (<strong>911 / 112</strong>) immediately if experiencing severe symptoms such as crushing chest pain, difficulty breathing, or sudden numbness.
+              </p>
             </div>
-
-            {messages.map((msg) => (
-              <ChatMessage
-                key={msg.id}
-                message={msg}
-                onOpenSource={handleOpenSourceViewer}
-              />
-            ))}
-
-            {isLoading && (
-              <div className="flex items-center gap-2 text-xs text-teal-600 dark:text-teal-400 max-w-4xl mx-auto px-6 py-2">
-                <Activity className="w-4 h-4 animate-spin" />
-                <span>Consulting Kaggle clinical dataset & synthesizing guidance...</span>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
+            <button
+              onClick={() => setEmergencyAlert(false)}
+              className="text-rose-500 hover:text-rose-700 text-xs font-semibold p-1"
+              title="Dismiss warning"
+            >
+              ✕
+            </button>
           </div>
         )}
 
-        {/* Input Bar Fixed Bottom */}
-        <div className="sticky bottom-0 bg-gradient-to-t from-slate-50 via-slate-50/95 to-transparent dark:from-[#0b0f19] dark:via-[#0b0f19]/95 dark:to-transparent pt-4">
-          <ChatInput
-            input={input}
-            setInput={setInput}
-            onSubmit={handleSubmit}
-            isLoading={isLoading}
-            onClear={handleClearChat}
-            hasMessages={messages.length > 0}
-          />
-        </div>
+        {/* Empty State / Welcome */}
+        {messages.length === 0 ? (
+          <div className="my-auto py-12 text-center max-w-md mx-auto space-y-3">
+            <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl mx-auto flex items-center justify-center border border-emerald-100 shadow-xs">
+              <Activity className="w-6 h-6" />
+            </div>
+            <h2 className="text-lg font-bold text-slate-900">
+              Welcome to CarePulse AI
+            </h2>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Describe your symptoms or ask healthcare questions. Responses are evidence-based, grounded in open Kaggle clinical datasets, with safety guardrails active.
+            </p>
+            <p className="text-[11px] text-slate-400 pt-2 border-t border-slate-200">
+              Informational decision-support only. Not a substitute for a licensed medical provider.
+            </p>
+          </div>
+        ) : (
+          /* Message List */
+          <div className="space-y-4 mb-4">
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                {msg.role === 'user' ? (
+                  /* User Message */
+                  <div className="bg-emerald-600 text-white rounded-2xl rounded-tr-none px-4 py-3 text-sm max-w-[85%] leading-relaxed shadow-xs">
+                    {msg.content}
+                  </div>
+                ) : (
+                  /* AI Message */
+                  <div className="bg-white border border-slate-200 shadow-sm rounded-2xl rounded-tl-none p-4 text-sm max-w-[90%] text-slate-800 leading-relaxed">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed text-slate-700">{children}</p>,
+                        ul: ({ children }) => <ul className="list-disc pl-5 my-2 space-y-1 text-slate-700">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal pl-5 my-2 space-y-1 text-slate-700">{children}</ol>,
+                        li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                        strong: ({ children }) => <strong className="font-semibold text-slate-900">{children}</strong>,
+                        h3: ({ children }) => <h3 className="font-bold text-slate-900 text-sm mt-3 mb-1.5">{children}</h3>,
+                        h4: ({ children }) => <h4 className="font-semibold text-slate-800 text-xs mt-2 mb-1">{children}</h4>,
+                        hr: () => <hr className="my-3 border-slate-200" />
+                      }}
+                    >
+                      {msg.content}
+                    </ReactMarkdown>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Streaming / Loading Indicator */}
+            {isLoading && messages[messages.length - 1]?.role === 'user' && (
+              <div className="flex justify-start">
+                <div className="bg-white border border-slate-200 shadow-xs rounded-2xl rounded-tl-none px-4 py-3 text-xs text-slate-500 flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
+                  <span>Retrieving Kaggle medical references & synthesizing...</span>
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+        )}
       </main>
 
-      {/* Emergency Hotline Alert Modal */}
-      <EmergencyModal
-        isOpen={emergencyModalOpen}
-        onClose={() => setEmergencyModalOpen(false)}
-        triggerReason={emergencyTrigger}
-      />
+      {/* 4. CHAT INPUT (FIXED BOTTOM) */}
+      <footer className="bg-white border-t border-slate-200 sticky bottom-0 z-20 py-3 px-4 shadow-xs">
+        <div className="max-w-3xl mx-auto">
+          <form
+            onSubmit={(e) => handleSubmit(e)}
+            className="flex items-center gap-2 bg-slate-50 border border-slate-300 rounded-xl p-1.5 focus-within:border-emerald-600 focus-within:ring-1 focus-within:ring-emerald-600 focus-within:bg-white transition"
+          >
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Describe symptoms or ask a medical question..."
+              disabled={isLoading}
+              className="flex-1 bg-transparent px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={!input.trim() || isLoading}
+              className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-lg p-2.5 transition flex items-center justify-center shadow-xs cursor-pointer disabled:cursor-not-allowed"
+              aria-label="Send message"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+            </button>
+          </form>
 
-      {/* Kaggle Dataset Source Inspector Drawer */}
-      <SourceDrawer
-        isOpen={sourceDrawerOpen}
-        onClose={() => setSourceDrawerOpen(false)}
-        selectedSources={activeSources}
-      />
+          <p className="text-center text-[11px] text-slate-400 mt-2">
+            CarePulse AI is for educational triage. Always verify with a physician. In emergencies, call 911 immediately.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
