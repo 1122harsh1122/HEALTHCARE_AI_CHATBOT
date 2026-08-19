@@ -273,8 +273,18 @@ export default function HealthcareChatPage() {
                         li: ({ children }) => <li className="leading-relaxed">{children}</li>,
                         strong: ({ children }) => <strong className="font-semibold text-slate-900 dark:text-white">{children}</strong>,
                         h3: ({ children }) => <h3 className="font-bold text-slate-900 dark:text-white text-sm mt-3 mb-1.5">{children}</h3>,
-                        h4: ({ children }) => <h4 className="font-semibold text-slate-800 dark:text-slate-200 text-xs mt-2 mb-1">{children}</h4>,
-                        hr: () => <hr className="my-3 border-slate-200 dark:border-slate-800" />
+                        h4: ({ children }) => <h4 className="font-semibold text-slate-800 dark:text-slate-200 text-xs mt-2.5 mb-1">{children}</h4>,
+                        hr: () => <hr className="my-3 border-slate-200 dark:border-slate-800" />,
+                        code: ({ children }) => (
+                          <code className="bg-slate-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded text-xs font-mono font-medium border border-slate-200 dark:border-slate-700 inline-block my-0.5 overflow-x-auto">
+                            {children}
+                          </code>
+                        ),
+                        blockquote: ({ children }) => (
+                          <blockquote className="border-l-3 border-emerald-500 pl-3 my-2 text-xs text-slate-600 dark:text-slate-400 bg-emerald-50/50 dark:bg-emerald-950/20 py-1 rounded-r">
+                            {children}
+                          </blockquote>
+                        )
                       }}
                     >
                       {msg.content}

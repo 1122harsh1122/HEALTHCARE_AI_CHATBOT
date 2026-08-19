@@ -291,53 +291,56 @@ export function handleBmiQuery(input: string): string {
 
     const heightDisplay = parsed.originalHeight?.value || `${Math.round(parsed.heightMeters * 100)} cm`;
 
-    return `### ⚖️ Body Mass Index (BMI) Assessment
+    // Visual scale indicator representation
+    let scaleVisual = '';
+    if (bmi < 18.5) {
+      scaleVisual = `\`[ 🟡 ${roundedBmi} YOU ] ─── Normal [18.5-24.9] ─── Overweight [25-29.9] ─── Obesity [≥30]\``;
+    } else if (bmi <= 24.9) {
+      scaleVisual = `\`Underweight [<18.5] ─── [ 🟢 ${roundedBmi} YOU ] ─── Overweight [25-29.9] ─── Obesity [≥30]\``;
+    } else if (bmi <= 29.9) {
+      scaleVisual = `\`Underweight [<18.5] ─── Normal [18.5-24.9] ─── [ 🟠 ${roundedBmi} YOU ] ─── Obesity [≥30]\``;
+    } else {
+      scaleVisual = `\`Underweight [<18.5] ─── Normal [18.5-24.9] ─── Overweight [25-29.9] ─── [ 🔴 ${roundedBmi} YOU ]\``;
+    }
 
-**Your Clinical BMI Result:**
-## **${roundedBmi} kg/m²** — **${badge}**
+    return `### ⚖️ BMI Assessment Result
 
----
+**Calculated BMI:** **${roundedBmi} kg/m²** • **${badge}**
 
-### 📊 Summary of Measurements
+${scaleVisual}
+
+#### 📊 Key Measurements
 - **Height:** ${heightDisplay}
 - **Weight:** ${weightDisplay}
-- **Calculated BMI:** **${roundedBmi}**
-- **WHO Healthy Target Weight for Your Height:** **${minIdealKg} – ${maxIdealKg} kg** (${minIdealLbs} – ${maxIdealLbs} lbs)
+- **Healthy Target Weight for Your Height:** **${minIdealKg} – ${maxIdealKg} kg** (${minIdealLbs} – ${maxIdealLbs} lbs)
+- **WHO Category Range:** ${
+      bmi < 18.5
+        ? 'Underweight is defined as BMI < 18.5 kg/m²'
+        : bmi <= 24.9
+        ? 'Normal / Healthy weight is defined as BMI 18.5 – 24.9 kg/m²'
+        : bmi <= 29.9
+        ? 'Overweight is defined as BMI 25.0 – 29.9 kg/m²'
+        : 'Obesity is defined as BMI ≥ 30.0 kg/m²'
+    }
 
----
-
-### 📋 WHO Standard BMI Classifications
-| Category | BMI Range (kg/m²) | Status |
-| :--- | :--- | :--- |
-| **Underweight** | < 18.5 | 🟡 Lower than normal |
-| **Normal / Healthy** | 18.5 – 24.9 | 🟢 Optimal range |
-| **Overweight** | 25.0 – 29.9 | 🟠 Mildly elevated risk |
-| **Obesity Class I** | 30.0 – 34.9 | 🔴 Elevated cardiometabolic risk |
-| **Obesity Class II** | 35.0 – 39.9 | 🔴 High cardiometabolic risk |
-| **Obesity Class III** | ≥ 40.0 | 🔴 Very high risk |
-
----
-
-### 💡 Evidence-Based Lifestyle & Health Guidance
+#### 💡 Evidence-Based Health Guidance
 ${advice}
 
 ---
-
-*Clinical Note: BMI is a general screening indicator and does not differentiate between skeletal muscle mass and adiposity. For individualized metabolic health evaluations, consult a physician.*`;
+*ℹ️ Clinical Note: BMI is a screening indicator and does not differentiate between skeletal muscle mass and body fat. For personalized body composition evaluations, consult your physician.*`;
   }
 
   // If numbers are missing, provide an interactive guide on how to calculate
   return `### ⚖️ CarePulse AI — BMI Calculator
 
-I can calculate your exact **Body Mass Index (BMI)**, identify your WHO weight classification, and provide personalized evidence-based health recommendations!
+I can calculate your exact **Body Mass Index (BMI)**, identify your WHO weight classification, and provide personalized health guidance.
 
-**Please provide your height and weight in either Metric or Imperial units:**
+#### 📌 How to provide your measurements:
+- **Metric:** *"Calculate my BMI: 70 kg, 175 cm"*
+- **Imperial:** *"My weight is 160 lbs and height is 5 ft 10 in"*
+- **Quick Format:** *"Weight: 80kg, Height: 1.80m"*
 
-- **Metric Example:** *"Calculate my BMI: 70 kg, 175 cm"*
-- **Imperial Example:** *"My weight is 160 lbs and height is 5 ft 10 in"*
-- **Short Example:** *"Weight 80kg, Height 1.80m"*
-
-Reply with your height and weight, and I'll calculate your results immediately!`;
+Simply reply with your height and weight, and I'll generate your assessment right away!`;
 }
 
 /**
