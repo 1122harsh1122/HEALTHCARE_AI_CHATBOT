@@ -38,11 +38,11 @@ const DOSAGE_PATTERNS = [
 ];
 
 const HOTLINES = [
-  { country: 'United States & Canada', number: '911', service: 'Emergency Medical Services' },
-  { country: 'US Crisis & Suicide Lifeline', number: '988', service: '24/7 Suicide & Crisis Lifeline' },
-  { country: 'United Kingdom', number: '999 or 111', service: 'Emergency / NHS Urgent Advice' },
-  { country: 'European Union & India', number: '112', service: 'Universal Emergency Helpline' },
-  { country: 'US Poison Control', number: '1-800-222-1222', service: 'National Poison Action Center' }
+  { country: 'India (National Emergency)', number: '112', service: 'All-in-One Emergency Response (ERSS)' },
+  { country: 'India (Ambulance / Medical)', number: '108 / 102', service: 'Emergency Medical & Ambulance' },
+  { country: 'India (Police)', number: '100', service: 'Police Emergency Response' },
+  { country: 'India (Tele-MANAS Mental Health)', number: '14416 / 1800-891-4416', service: 'National Mental Health & Crisis Helpline' },
+  { country: 'International (US / Canada / UK)', number: '911 / 999', service: 'International Emergency Responders' }
 ];
 
 /**
@@ -100,11 +100,11 @@ export function evaluateMedicalSafety(userPrompt: string): SafetyCheckResult {
 
 **If you or someone nearby is experiencing a life-threatening medical event, STOP reading and contact emergency services immediately.**
 
-- **United States & Canada**: Call **911**
-- **Suicide & Mental Health Crisis Lifeline**: Call or text **988**
-- **United Kingdom**: Call **999** (Emergency) or **111** (Urgent Advice)
-- **European Union & India**: Call **112**
-- **US Poison Control**: Call **1-800-222-1222**
+- 🇮🇳 **India Universal Emergency**: Call **112** (National Emergency Response System)
+- 🚑 **Medical / Ambulance**: Call **108** or **102**
+- 👮 **Police Emergency**: Call **100**
+- 🧠 **Tele-MANAS Mental Health Helpline**: Call **14416** or **1800-891-4416** (24/7 Toll-Free)
+- 🌍 **International Emergency**: Call **911** (US/Canada) or **999** (UK)
 
 *Do not wait for online advice when symptoms like severe chest pain, sudden numbness/facial drooping, difficulty breathing, or severe allergic swelling occur. Immediate emergency medical evaluation is necessary.*`;
   } else if (isDosageQuery || isPrescriptionRequest) {

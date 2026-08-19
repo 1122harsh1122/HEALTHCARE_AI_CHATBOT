@@ -62,7 +62,7 @@ export const DisclaimerBanner: React.FC<DisclaimerBannerProps> = ({ onEmergencyC
             • <strong>Prescription Limitation:</strong> This bot will never calculate drug dosages, prescribe controlled substances, or replace diagnostic laboratory testing.
           </p>
           <p>
-            • <strong>Immediate Emergency:</strong> If experiencing crushing chest pain, difficulty breathing, acute paralysis, or suicidal thoughts, call <strong>911 / 999 / 112</strong> immediately.
+            • <strong>Immediate Emergency:</strong> If experiencing crushing chest pain, difficulty breathing, acute paralysis, or suicidal thoughts, call <strong>112 / 108 / 100 (India) or 911</strong> immediately.
           </p>
         </div>
       )}

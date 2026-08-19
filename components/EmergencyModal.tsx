@@ -50,41 +50,41 @@ export const EmergencyModal: React.FC<EmergencyModalProps> = ({
 
         <div className="space-y-2.5 mb-6">
           <a
-            href="tel:911"
+            href="tel:112"
             className="flex items-center justify-between p-3.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold text-sm transition shadow-md shadow-red-600/20"
           >
             <span className="flex items-center gap-2">
               <PhoneCall className="w-4 h-4" />
-              United States & Canada
+              🇮🇳 India Universal Emergency (ERSS)
             </span>
-            <span className="text-base font-bold underline">Call 911</span>
+            <span className="text-base font-bold underline">Call 112</span>
           </a>
 
           <a
-            href="tel:988"
-            className="flex items-center justify-between p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold text-sm transition shadow-md"
+            href="tel:108"
+            className="flex items-center justify-between p-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm transition shadow-md"
           >
             <span className="flex items-center gap-2">
               <PhoneCall className="w-4 h-4" />
-              Suicide & Crisis Lifeline
+              🚑 Emergency Ambulance Services
             </span>
-            <span className="text-base font-bold underline">Call / Text 988</span>
+            <span className="text-base font-bold underline">Call 108 / 102</span>
           </a>
 
           <div className="grid grid-cols-2 gap-2 text-xs">
             <a
-              href="tel:999"
+              href="tel:100"
               className="flex items-center justify-between p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition border border-slate-200 dark:border-slate-700"
             >
-              <span>UK (Emergency):</span>
-              <strong className="text-red-600 dark:text-red-400">999 / 111</strong>
+              <span>👮 Police Emergency:</span>
+              <strong className="text-red-600 dark:text-red-400">100</strong>
             </a>
             <a
-              href="tel:112"
+              href="tel:14416"
               className="flex items-center justify-between p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition border border-slate-200 dark:border-slate-700"
             >
-              <span>EU & India:</span>
-              <strong className="text-red-600 dark:text-red-400">112</strong>
+              <span>🧠 Tele-MANAS:</span>
+              <strong className="text-purple-600 dark:text-purple-400">14416</strong>
             </a>
           </div>
         </div>

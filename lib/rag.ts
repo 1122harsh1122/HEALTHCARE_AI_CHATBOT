@@ -124,7 +124,7 @@ export function getSmallTalkResponse(input: string): string {
     cleaned.includes('see you') ||
     cleaned.includes('good night')
   ) {
-    return `### 👋 Goodbye and Take Care!\n\nThank you for using CarePulse AI. If you experience any new symptoms or need healthcare information in the future, I'll be here to help.\n\n*Remember: If you ever experience an acute emergency (like severe chest pain or trouble breathing), contact **911 / 112** immediately.*`;
+    return `### 👋 Goodbye and Take Care!\n\nThank you for using CarePulse AI. If you experience any new symptoms or need healthcare information in the future, I'll be here to help.\n\n*Remember: If you ever experience an acute emergency (like severe chest pain or trouble breathing), contact **112 / 108 / 100** immediately.*`;
   }
 
   if (
@@ -133,7 +133,7 @@ export function getSmallTalkResponse(input: string): string {
     cleaned.includes('how to use') ||
     cleaned.includes('what should i do')
   ) {
-    return `### 💡 How to Use CarePulse AI\n\nGetting medical information is simple:\n\n1. **Describe Symptoms:** Type what you're feeling (e.g., *"I have a throbbing headache with nausea"* or *"Fever with dry cough for 3 days"*).\n2. **Ask Questions:** Inquire about specific conditions (e.g., *"What are early warning signs of diabetes?"* or *"How to lower high blood pressure?"*).\n3. **Quick Topics:** Click any of the pill buttons at the top of the chat for instant exploration.\n\n*Emergency Notice: If you have severe symptoms like crushing chest pain, difficulty breathing, or stroke signs, call **911 / 112** immediately.*`;
+    return `### 💡 How to Use CarePulse AI\n\nGetting medical information is simple:\n\n1. **Describe Symptoms:** Type what you're feeling (e.g., *"I have a throbbing headache with nausea"* or *"Fever with dry cough for 3 days"*).\n2. **Ask Questions:** Inquire about specific conditions (e.g., *"What are early warning signs of diabetes?"* or *"How to lower high blood pressure?"*).\n3. **Quick Topics:** Click any of the pill buttons at the top of the chat for instant exploration.\n\n*Emergency Notice: If you have severe symptoms like crushing chest pain, difficulty breathing, or stroke signs, call **112 / 108 / 100** immediately.*`;
   }
 
   // Default friendly greeting response

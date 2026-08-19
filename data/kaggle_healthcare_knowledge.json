@@ -36,14 +36,14 @@
         "feeling of impending doom or severe anxiety"
       ],
       "precautions": [
-        "IMMEDIATELY call 911 (or your local emergency number) — do not drive yourself to the hospital",
+        "IMMEDIATELY call 112 / 108 in India (or 911 internationally) — do not drive yourself to the hospital",
         "Chew one regular aspirin (325mg) or four low-dose aspirin (81mg each) if not allergic and no contraindication — this can reduce clot formation",
         "Sit or lie down in a comfortable position and loosen any tight clothing",
         "If trained and the person is unresponsive with no pulse, begin CPR immediately and continue until emergency services arrive",
         "Do not eat or drink anything further while waiting for emergency services",
         "After recovery: follow your cardiologist's plan for cardiac rehabilitation, prescribed medications, lifestyle changes, and regular follow-ups"
       ],
-      "whenToSeeDoctor": "This IS the emergency — call 911 immediately. Time is heart muscle. Every minute of delayed treatment increases permanent cardiac damage. Do not wait to see if the pain goes away on its own.",
+      "whenToSeeDoctor": "This IS the emergency — call 112 / 108 immediately (or 911). Time is heart muscle. Every minute of delayed treatment increases permanent cardiac damage. Do not wait to see if the pain goes away on its own.",
       "relatedFaqIds": ["faq-heart-attack-1", "faq-heart-attack-2"]
     },
     {
@@ -379,13 +379,13 @@
     {
       "id": "faq-heart-attack-1",
       "question": "What are the classic warning signs and symptoms of a heart attack?",
-      "answer": "The classic warning signs of a heart attack (Acute Myocardial Infarction) include:\n\n**Primary symptoms:**\n- **Chest pain or pressure**: A feeling of crushing, squeezing, tightness, or heaviness in the centre of the chest lasting more than a few minutes, or that goes away and comes back.\n- **Radiating pain**: Discomfort spreading to the left arm, both arms, jaw, neck, upper back, or stomach.\n- **Shortness of breath**: Often occurring alongside chest discomfort, or sometimes before it.\n\n**Additional symptoms (especially common in women, diabetics, and elderly):**\n- Cold sweats and clammy skin\n- Sudden nausea or vomiting\n- Lightheadedness or unexplained dizziness\n- Extreme, unexplained fatigue\n- Sense of impending doom or severe anxiety\n\n⚠️ **If you or someone nearby has these symptoms, call 911 immediately. Do not drive to the hospital.**",
+      "answer": "The classic warning signs of a heart attack (Acute Myocardial Infarction) include:\n\n**Primary symptoms:**\n- **Chest pain or pressure**: A feeling of crushing, squeezing, tightness, or heaviness in the centre of the chest lasting more than a few minutes, or that goes away and comes back.\n- **Radiating pain**: Discomfort spreading to the left arm, both arms, jaw, neck, upper back, or stomach.\n- **Shortness of breath**: Often occurring alongside chest discomfort, or sometimes before it.\n\n**Additional symptoms (especially common in women, diabetics, and elderly):**\n- Cold sweats and clammy skin\n- Sudden nausea or vomiting\n- Lightheadedness or unexplained dizziness\n- Extreme, unexplained fatigue\n- Sense of impending doom or severe anxiety\n\n⚠️ **If you or someone nearby has these symptoms, call 112 / 108 in India (or 911 internationally) immediately. Do not drive to the hospital.**",
       "tags": ["heart attack", "myocardial infarction", "cardiac", "cardiovascular", "chest pain", "arm pain", "jaw pain"]
     },
     {
       "id": "faq-heart-attack-2",
       "question": "What is the difference between a heart attack and cardiac arrest?",
-      "answer": "These are two distinct but related cardiac emergencies:\n\n**Heart Attack (Myocardial Infarction):**\n- Caused by a **blockage** in a coronary artery cutting off blood supply to the heart muscle.\n- The heart continues to beat, but part of the muscle is dying.\n- Patient is usually conscious and experiencing chest pain, arm pain, shortness of breath.\n- **Action**: Call 911 immediately. Chew aspirin if available and not contraindicated.\n\n**Cardiac Arrest:**\n- The heart **suddenly stops beating** altogether due to an electrical malfunction.\n- The patient collapses, is unresponsive, and has no pulse.\n- A heart attack can trigger cardiac arrest if untreated.\n- **Action**: Call 911 immediately and begin CPR. Use an AED (Automated External Defibrillator) if available nearby.",
+      "answer": "These are two distinct but related cardiac emergencies:\n\n**Heart Attack (Myocardial Infarction):**\n- Caused by a **blockage** in a coronary artery cutting off blood supply to the heart muscle.\n- The heart continues to beat, but part of the muscle is dying.\n- Patient is usually conscious and experiencing chest pain, arm pain, shortness of breath.\n- **Action**: Call 112 / 108 in India (or 911) immediately. Chew aspirin if available and not contraindicated.\n\n**Cardiac Arrest:**\n- The heart **suddenly stops beating** altogether due to an electrical malfunction.\n- The patient collapses, is unresponsive, and has no pulse.\n- A heart attack can trigger cardiac arrest if untreated.\n- **Action**: Call 112 / 108 immediately and begin CPR. Use an AED (Automated External Defibrillator) if available nearby.",
       "tags": ["heart attack", "cardiac arrest", "myocardial infarction", "cpr", "aed", "cardiovascular", "defibrillator"]
     }
   ]

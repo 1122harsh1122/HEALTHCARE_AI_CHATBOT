@@ -219,7 +219,7 @@ export default function HealthcareChatPage() {
             <div className="flex items-start gap-2.5">
               <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
               <p className="text-sm font-medium leading-relaxed">
-                ⚠️ <strong>Emergency Warning:</strong> Please call emergency services (<strong>911 / 112</strong>) immediately if experiencing severe symptoms such as crushing chest pain, difficulty breathing, or sudden numbness.
+                ⚠️ <strong>Emergency Warning:</strong> Please call Indian emergency responders (<strong>112 / 108 / 100</strong>) immediately if experiencing severe symptoms such as crushing chest pain, difficulty breathing, or sudden numbness.
               </p>
             </div>
             <button
@@ -339,7 +339,7 @@ export default function HealthcareChatPage() {
           </form>
 
           <p className="text-center text-[11px] text-slate-400 dark:text-slate-500 mt-2">
-            CarePulse AI is for educational triage. Always verify with a physician. In emergencies, call 911 immediately.
+            CarePulse AI is for educational triage. Always verify with a physician. In emergencies (India), call 112 / 108 immediately.
           </p>
         </div>
       </footer>
