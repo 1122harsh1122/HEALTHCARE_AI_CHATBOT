@@ -1,8 +1,11 @@
 import { getAllConditions, getKnowledgeDatabase } from './dataset-parser';
 import { MedicalCondition, MedicalFaq, RagResult } from './types';
 
-// Stop words to filter out during tokenization
+// Stop words to filter out during tokenization.
+// Includes generic medical query filler words that appear in almost every health
+// question and would otherwise cause false-positive matches across unrelated topics.
 const STOP_WORDS = new Set([
+  // Standard English stop words
   'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and',
   'any', 'are', 'aren\'t', 'as', 'at', 'be', 'because', 'been', 'before', 'being',
   'below', 'between', 'both', 'but', 'by', 'can', 'cant', 'cannot', 'could',
@@ -15,7 +18,16 @@ const STOP_WORDS = new Set([
   'some', 'such', 'than', 'that', 'the', 'their', 'theirs', 'them', 'themselves',
   'then', 'there', 'these', 'they', 'this', 'those', 'through', 'to', 'too',
   'under', 'until', 'up', 'very', 'was', 'we', 'were', 'what', 'when', 'where',
-  'which', 'while', 'who', 'whom', 'why', 'with', 'would', 'you', 'your', 'yours'
+  'which', 'while', 'who', 'whom', 'why', 'with', 'would', 'you', 'your', 'yours',
+  // Generic medical query filler words — appear in virtually every health question
+  // and carry NO discriminating signal between different conditions.
+  // Keeping these causes false positives (e.g. "symptoms" matching flu FAQ for
+  // "heart attack symptoms" query).
+  'symptom', 'symptoms', 'sign', 'signs', 'disease', 'condition', 'conditions',
+  'treatment', 'treatments', 'cause', 'causes', 'effect', 'effects', 'related',
+  'medical', 'health', 'healthcare', 'clinical', 'know', 'tell', 'common',
+  'please', 'help', 'information', 'info', 'explain', 'describe', 'list',
+  'regarding', 'ask', 'question', 'feel', 'feeling', 'experiencing', 'experience'
 ]);
 
 /**
@@ -142,23 +154,23 @@ export function queryKnowledgeBase(query: string, topConditionsLimit = 3, topFaq
     };
   }
 
-  // Score all conditions
+  // Score all conditions — only keep results with meaningful relevance (score > 10)
   const scoredConditions = db.conditions
     .map((condition) => {
       const { score, matched } = scoreCondition(condition, queryTokens);
       return { condition, score, matched };
     })
-    .filter((item) => item.score > 4)
+    .filter((item) => item.score > 10)
     .sort((a, b) => b.score - a.score)
     .slice(0, topConditionsLimit);
 
-  // Score all FAQs
+  // Score all FAQs — only keep results with meaningful relevance (score > 10)
   const scoredFaqs = db.faqs
     .map((faq) => {
       const { score, matched } = scoreFaq(faq, queryTokens);
       return { faq, score, matched };
     })
-    .filter((item) => item.score > 4)
+    .filter((item) => item.score > 10)
     .sort((a, b) => b.score - a.score)
     .slice(0, topFaqsLimit);
 

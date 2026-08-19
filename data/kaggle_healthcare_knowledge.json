@@ -13,9 +13,39 @@
     "severe bleeding", "uncontrolled bleeding", "coughing blood", "vomiting blood",
     "anaphylaxis", "throat swelling", "cannot swallow", "severe allergic reaction",
     "unconscious", "unresponsive", "fainting with chest pain", "seizure lasting over 5 minutes",
-    "suicidal", "want to kill myself", "self harm", "poison", "swallowed poison", "overdose"
+    "suicidal", "want to kill myself", "self harm", "poison", "swallowed poison", "overdose",
+    "having a heart attack", "i think i am having a heart attack", "cardiac arrest",
+    "heart stopped", "crushing chest", "squeezing chest"
   ],
   "conditions": [
+    {
+      "id": "heart-attack",
+      "name": "Acute Myocardial Infarction (Heart Attack)",
+      "category": "Cardiovascular Emergency",
+      "severity": "Critical / Life-Threatening",
+      "description": "A heart attack occurs when blood flow to a part of the heart muscle is suddenly blocked, usually by a blood clot forming in a narrowed coronary artery. Without immediate restoration of blood flow, the affected heart muscle begins to die. It is a leading cause of death worldwide and requires emergency medical intervention.",
+      "symptoms": [
+        "crushing or squeezing chest pain or pressure lasting more than a few minutes",
+        "pain radiating to the left arm, jaw, neck, or back",
+        "shortness of breath with or without chest discomfort",
+        "cold sweats and clammy skin",
+        "nausea or vomiting",
+        "lightheadedness or sudden dizziness",
+        "extreme unexplained fatigue (especially in women)",
+        "palpitations or irregular heartbeat",
+        "feeling of impending doom or severe anxiety"
+      ],
+      "precautions": [
+        "IMMEDIATELY call 911 (or your local emergency number) — do not drive yourself to the hospital",
+        "Chew one regular aspirin (325mg) or four low-dose aspirin (81mg each) if not allergic and no contraindication — this can reduce clot formation",
+        "Sit or lie down in a comfortable position and loosen any tight clothing",
+        "If trained and the person is unresponsive with no pulse, begin CPR immediately and continue until emergency services arrive",
+        "Do not eat or drink anything further while waiting for emergency services",
+        "After recovery: follow your cardiologist's plan for cardiac rehabilitation, prescribed medications, lifestyle changes, and regular follow-ups"
+      ],
+      "whenToSeeDoctor": "This IS the emergency — call 911 immediately. Time is heart muscle. Every minute of delayed treatment increases permanent cardiac damage. Do not wait to see if the pain goes away on its own.",
+      "relatedFaqIds": ["faq-heart-attack-1", "faq-heart-attack-2"]
+    },
     {
       "id": "hypertension",
       "name": "Hypertension (High Blood Pressure)",
@@ -290,7 +320,7 @@
       "id": "faq-dia-1",
       "question": "What are the early warning signs of diabetes?",
       "answer": "The classic 3 'Ps' of diabetes are:\n1. **Polyuria**: Frequent urination, especially at night, as kidneys attempt to expel excess glucose.\n2. **Polydipsia**: Excessive, unquenchable thirst resulting from fluid loss.\n3. **Polyphagia**: Constant extreme hunger because cells are unable to utilize glucose without effective insulin.\nOther early signs include chronic unexplained fatigue, blurred vision, slow-healing cuts, and recurrent yeast infections.",
-      "tags": ["diabetes", "symptoms", "glucose", "endocrine"]
+      "tags": ["diabetes", "warning signs", "polydipsia", "polyuria", "glucose", "endocrine"]
     },
     {
       "id": "faq-dia-2",
@@ -308,7 +338,7 @@
       "id": "faq-mig-1",
       "question": "How can I tell the difference between a tension headache and a migraine?",
       "answer": "- **Tension Headache**: Usually mild-to-moderate, feels like a tight band or dull ache wrapping around both sides of the head. Typically not worsened by physical movement and not accompanied by nausea or visual disturbances.\n- **Migraine**: Moderate-to-severe, throbbing or pulsating pain, often unilateral (one side of head). Worsened by routine physical activity. Frequently accompanied by nausea, vomiting, photophobia (light sensitivity), phonophobia (sound sensitivity), and sometimes preceding sensory/visual auras.",
-      "tags": ["headache", "migraine", "neurology", "symptoms"]
+      "tags": ["headache", "migraine", "neurology", "tension headache", "aura"]
     },
     {
       "id": "faq-gerd-1",
@@ -320,7 +350,7 @@
       "id": "faq-flu-1",
       "question": "How do I know if I have a common cold or the flu?",
       "answer": "- **Onset**: Flu symptoms appear abruptly (within hours), while colds develop gradually over 1-3 days.\n- **Fever**: Flu often causes high fevers (100°F-102°F+), while colds rarely cause significant fever in adults.\n- **Body Aches & Fatigue**: Flu causes intense, debilitating muscle aches and profound fatigue. Colds cause mild fatigue and minor aches.\n- **Upper Respiratory**: Colds frequently present with sneezing, stuffy nose, and sore throat early on; flu focuses heavily on systemic exhaustion, dry cough, and fever.",
-      "tags": ["flu", "cold", "influenza", "virus", "symptoms"]
+      "tags": ["flu", "cold", "influenza", "virus", "fever", "cough"]
     },
     {
       "id": "faq-anemia-1",
@@ -344,7 +374,19 @@
       "id": "faq-covid-1",
       "question": "When should someone with COVID-19 seek emergency medical care?",
       "answer": "Seek emergency medical services immediately if you or someone you are caring for exhibits any of these warning signs:\n- Trouble breathing or severe shortness of breath\n- Persistent chest pain, pressure, or tightness\n- New confusion or inability to wake or stay awake\n- Pale, gray, or blue-colored skin, lips, or nail beds (cyanosis)\n- Oxygen saturation reading below 92% on a home pulse oximeter.",
-      "tags": ["covid-19", "emergency", "respiratory", "warning signs"]
+      "tags": ["covid-19", "emergency", "respiratory", "oxygen", "pulse oximeter"]
+    },
+    {
+      "id": "faq-heart-attack-1",
+      "question": "What are the classic warning signs and symptoms of a heart attack?",
+      "answer": "The classic warning signs of a heart attack (Acute Myocardial Infarction) include:\n\n**Primary symptoms:**\n- **Chest pain or pressure**: A feeling of crushing, squeezing, tightness, or heaviness in the centre of the chest lasting more than a few minutes, or that goes away and comes back.\n- **Radiating pain**: Discomfort spreading to the left arm, both arms, jaw, neck, upper back, or stomach.\n- **Shortness of breath**: Often occurring alongside chest discomfort, or sometimes before it.\n\n**Additional symptoms (especially common in women, diabetics, and elderly):**\n- Cold sweats and clammy skin\n- Sudden nausea or vomiting\n- Lightheadedness or unexplained dizziness\n- Extreme, unexplained fatigue\n- Sense of impending doom or severe anxiety\n\n⚠️ **If you or someone nearby has these symptoms, call 911 immediately. Do not drive to the hospital.**",
+      "tags": ["heart attack", "myocardial infarction", "cardiac", "cardiovascular", "chest pain", "arm pain", "jaw pain"]
+    },
+    {
+      "id": "faq-heart-attack-2",
+      "question": "What is the difference between a heart attack and cardiac arrest?",
+      "answer": "These are two distinct but related cardiac emergencies:\n\n**Heart Attack (Myocardial Infarction):**\n- Caused by a **blockage** in a coronary artery cutting off blood supply to the heart muscle.\n- The heart continues to beat, but part of the muscle is dying.\n- Patient is usually conscious and experiencing chest pain, arm pain, shortness of breath.\n- **Action**: Call 911 immediately. Chew aspirin if available and not contraindicated.\n\n**Cardiac Arrest:**\n- The heart **suddenly stops beating** altogether due to an electrical malfunction.\n- The patient collapses, is unresponsive, and has no pulse.\n- A heart attack can trigger cardiac arrest if untreated.\n- **Action**: Call 911 immediately and begin CPR. Use an AED (Automated External Defibrillator) if available nearby.",
+      "tags": ["heart attack", "cardiac arrest", "myocardial infarction", "cpr", "aed", "cardiovascular", "defibrillator"]
     }
   ]
 }

@@ -371,11 +371,15 @@ function streamClinicalSimulation(
       responseText += `\n`;
     }
   } else {
-    responseText += `### Healthcare Guidance & General Self-Care\n\n`;
-    responseText += `Thank you for reaching out. Based on your inquiry regarding *"${userPrompt.slice(0, 100)}"*:\n\n`;
-    responseText += `1. **Symptom Monitoring:** Keep a written log of when symptoms occur, their severity (scale 1-10), and any mitigating factors.\n`;
-    responseText += `2. **Hydration & Rest:** Ensure adequate fluid intake (2-3L/day unless fluid-restricted) and rest in a well-ventilated environment.\n`;
-    responseText += `3. **When to Seek Evaluation:** If symptoms persist beyond 48-72 hours, worsen in intensity, or interfere with daily activities, consult your primary care physician.\n\n`;
+    // No relevant dataset match found — return an honest, helpful "not found" response
+    responseText += `### No Exact Match Found in Kaggle Knowledge Base\n\n`;
+    responseText += `I couldn't find a condition or FAQ in the current Kaggle clinical dataset that closely matches your query about **"${userPrompt.slice(0, 120)}"**.\n\n`;
+    responseText += `**This could mean:**\n`;
+    responseText += `- The condition or term may be listed under a different name (try using the common name, e.g. "heart attack" instead of "myocardial infarction", or vice versa).\n`;
+    responseText += `- The topic may not yet be in the current version of the Kaggle healthcare dataset.\n\n`;
+    responseText += `**Currently covered topics include:**\n`;
+    responseText += `Hypertension, Type 2 Diabetes, Asthma, Migraine, GERD / Acid Reflux, Allergic Rhinitis, Urinary Tract Infection, Osteoarthritis, Influenza, Acute Bronchitis, Iron Deficiency Anemia, Anxiety / Panic Disorder, Hypothyroidism, COVID-19, Eczema, and Heart Attack / Myocardial Infarction.\n\n`;
+    responseText += `**Suggested next step:** Please try rephrasing your question or use one of the quick topic chips at the top of the page. If you are experiencing an active medical emergency, call **911 / 112** immediately.\n\n`;
   }
 
   responseText += `\n---\n${CLINICAL_DISCLAIMER}`;
