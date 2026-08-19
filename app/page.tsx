@@ -12,6 +12,7 @@ interface Message {
 }
 
 const QUICK_SYMPTOMS = [
+  'Calculate BMI (70kg, 175cm)',
   'Fever & Chills',
   'Throbbing Headache',
   'Dry Cough',

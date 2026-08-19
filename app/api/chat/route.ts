@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { evaluateMedicalSafety, CLINICAL_DISCLAIMER } from '@/lib/guardrails';
-import { queryKnowledgeBase, isSmallTalk, getSmallTalkResponse } from '@/lib/rag';
+import { queryKnowledgeBase, isSmallTalk, getSmallTalkResponse, isBmiQuery, handleBmiQuery } from '@/lib/rag';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -41,7 +41,14 @@ export async function POST(req: NextRequest) {
       return createConversationalStreamResponse(greetingResponse);
     }
 
-    // Step 3: Execute Kaggle Dataset RAG Retrieval (Symptom & Disease Knowledge Search)
+    // Step 3: Clinical Health Calculators (BMI Calculator Tool)
+    // If user query is requesting a BMI calculation or asking about body mass index
+    if (isBmiQuery(userPrompt)) {
+      const bmiResponse = handleBmiQuery(userPrompt);
+      return createConversationalStreamResponse(bmiResponse);
+    }
+
+    // Step 4: Execute Kaggle Dataset RAG Retrieval (Symptom & Disease Knowledge Search)
     const ragResult = queryKnowledgeBase(userPrompt, 3, 2);
 
     const conditionNames = ragResult.conditions.map((c) => c.name);
