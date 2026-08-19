@@ -1,0 +1,350 @@
+{
+  "metadata": {
+    "source": "Kaggle Open Source Healthcare Datasets (Disease & Symptoms Prediction, Disease Precaution & Description, MedQuAD Clinical FAQ)",
+    "version": "2.4.0",
+    "lastUpdated": "2026-01-15",
+    "totalConditions": 36,
+    "totalFaqs": 42
+  },
+  "emergencyKeywords": [
+    "chest pain", "pressure in chest", "left arm pain", "radiating jaw pain",
+    "shortness of breath", "cannot breathe", "gasping for air", "cyanosis", "blue lips",
+    "sudden numbness", "facial drooping", "slurred speech", "stroke", "loss of vision",
+    "severe bleeding", "uncontrolled bleeding", "coughing blood", "vomiting blood",
+    "anaphylaxis", "throat swelling", "cannot swallow", "severe allergic reaction",
+    "unconscious", "unresponsive", "fainting with chest pain", "seizure lasting over 5 minutes",
+    "suicidal", "want to kill myself", "self harm", "poison", "swallowed poison", "overdose"
+  ],
+  "conditions": [
+    {
+      "id": "hypertension",
+      "name": "Hypertension (High Blood Pressure)",
+      "category": "Cardiovascular",
+      "severity": "Moderate to High",
+      "description": "Hypertension is a chronic condition in which the blood pressure in the arteries is persistently elevated. Known as a 'silent killer' because it rarely causes overt early symptoms, prolonged hypertension significantly increases the risk of heart disease, stroke, and kidney failure.",
+      "symptoms": ["headache", "dizziness", "shortness of breath on exertion", "nosebleeds", "blurred vision", "palpitations", "fatigue"],
+      "precautions": [
+        "Monitor blood pressure daily at rest using a calibrated cuff",
+        "Adopt the DASH diet (low sodium under 2,000mg/day, rich in potassium)",
+        "Engage in 150 minutes of moderate aerobic exercise weekly",
+        "Limit alcohol consumption and eliminate tobacco use",
+        "Manage psychological stress through mindfulness or breathing exercises",
+        "Never alter or stop prescribed anti-hypertensive medications without consulting your physician"
+      ],
+      "whenToSeeDoctor": "Seek immediate emergency care if systolic blood pressure exceeds 180 mmHg or diastolic exceeds 120 mmHg accompanied by chest pain, shortness of breath, back pain, numbness/weakness, or visual changes (Hypertensive Crisis).",
+      "relatedFaqIds": ["faq-htn-1", "faq-htn-2"]
+    },
+    {
+      "id": "type-2-diabetes",
+      "name": "Type 2 Diabetes Mellitus",
+      "category": "Endocrine & Metabolic",
+      "severity": "Moderate to High",
+      "description": "A metabolic disorder characterized by high blood glucose levels resulting from insulin resistance and inadequate insulin secretion. Left unmanaged, it can lead to microvascular (retinopathy, nephropathy, neuropathy) and macrovascular complications.",
+      "symptoms": ["increased thirst (polydipsia)", "frequent urination (polyuria)", "increased hunger (polyphagia)", "unintended weight loss", "fatigue", "blurred vision", "slow-healing sores", "frequent infections", "tingling in hands or feet"],
+      "precautions": [
+        "Regularly check fasting and postprandial blood glucose as directed by your physician",
+        "Maintain a balanced carbohydrate-controlled diet rich in dietary fiber and lean protein",
+        "Perform routine foot inspections daily to catch micro-abrasions or ulcers early",
+        "Schedule annual dilated eye exams and renal microalbuminuria urine screenings",
+        "Engage in regular physical activity to improve peripheral insulin sensitivity"
+      ],
+      "whenToSeeDoctor": "Contact your doctor if blood glucose persistently exceeds 250 mg/dL, or immediately seek emergency care if experiencing confusion, extreme thirst, sweet/fruity breath odor, nausea, or rapid deep breathing (signs of Diabetic Ketoacidosis or Hyperosmolar Hyperglycemic State).",
+      "relatedFaqIds": ["faq-dia-1", "faq-dia-2"]
+    },
+    {
+      "id": "bronchial-asthma",
+      "name": "Bronchial Asthma",
+      "category": "Respiratory",
+      "severity": "Moderate to Critical",
+      "description": "A chronic inflammatory airway disease characterized by episodic reversible airflow obstruction, bronchial hyperresponsiveness, and airway inflammation leading to recurrent respiratory distress.",
+      "symptoms": ["wheezing (whistling sound when exhaling)", "dry or productive cough especially at night", "chest tightness", "shortness of breath", "difficulty speaking in full sentences during flare-ups"],
+      "precautions": [
+        "Always carry a prescribed fast-acting rescue inhaler (e.g., Albuterol)",
+        "Identify and avoid specific triggers such as pollen, pet dander, tobacco smoke, dust mites, and cold air",
+        "Use a peak flow meter regularly to detect airway narrowing before symptoms become severe",
+        "Follow a personalized written Asthma Action Plan created with your pulmonologist",
+        "Ensure proper inhaler spacer technique for maximum pulmonary deposition"
+      ],
+      "whenToSeeDoctor": "Emergency medical attention is required immediately if your rescue inhaler provides no relief within 15 minutes, if your lips/fingernails turn pale or blue, or if you struggle to speak more than a few words.",
+      "relatedFaqIds": ["faq-asthma-1"]
+    },
+    {
+      "id": "migraine-headache",
+      "name": "Migraine Headache",
+      "category": "Neurology",
+      "severity": "Moderate",
+      "description": "A neurological condition typically manifesting as recurrent, throbbing, unilateral headache attacks often accompanied by sensory sensitivities, nausea, and in some individuals, visual or sensory auras.",
+      "symptoms": ["pulsating or throbbing head pain", "unilateral pain", "sensitivity to light (photophobia)", "sensitivity to sound (phonophobia)", "nausea or vomiting", "visual aura (flashing lights, blind spots, zigzag patterns)", "neck stiffness"],
+      "precautions": [
+        "Maintain a headache diary tracking foods, sleep patterns, stress, and weather triggers",
+        "Rest in a quiet, darkened room during acute episodes",
+        "Apply cold or warm compresses across the forehead or base of skull",
+        "Stay hydrated and avoid skipping meals",
+        "Consult a neurologist regarding preventive prophylactic medications if attacks occur more than 4 times per month"
+      ],
+      "whenToSeeDoctor": "Seek immediate emergency evaluation if you experience a 'thunderclap' headache (worst headache of life peaking in seconds), or headache accompanied by fever, stiff neck, confusion, seizure, or focal neurological deficit.",
+      "relatedFaqIds": ["faq-mig-1"]
+    },
+    {
+      "id": "gastroesophageal-reflux-disease",
+      "name": "Gastroesophageal Reflux Disease (GERD)",
+      "category": "Gastroenterology",
+      "severity": "Mild to Moderate",
+      "description": "A chronic digestive disorder where stomach acid or bile irritates the lining of the food pipe (esophagus) due to transient relaxations or weakness of the lower esophageal sphincter.",
+      "symptoms": ["heartburn (burning sensation in chest after eating)", "acid regurgitation into mouth", "difficulty swallowing (dysphagia)", "sensation of a lump in the throat (globus)", "chronic dry cough", "hoarseness or laryngitis"],
+      "precautions": [
+        "Avoid lying down for at least 3 hours following meals",
+        "Elevate the head of your bed 6 to 8 inches",
+        "Reduce consumption of trigger foods: citrus, tomatoes, chocolate, caffeine, mint, fried and spicy dishes",
+        "Eat smaller, more frequent meals rather than large heavy dinners",
+        "Maintain a healthy weight to reduce intra-abdominal pressure"
+      ],
+      "whenToSeeDoctor": "Consult a gastroenterologist if you experience progressive difficulty swallowing, painful swallowing, unexplained weight loss, or black tarry stools. Note: Always rule out cardiac causes if experiencing new unexplained chest pressure.",
+      "relatedFaqIds": ["faq-gerd-1"]
+    },
+    {
+      "id": "allergic-rhinitis",
+      "name": "Allergic Rhinitis (Hay Fever)",
+      "category": "Immunology & Allergy",
+      "severity": "Mild to Moderate",
+      "description": "An allergic inflammation of the nasal airways triggered by airborne allergens such as pollen, dust mites, mold spores, or animal dander in sensitized individuals.",
+      "symptoms": ["sneezing bouts", "runny or stuffy nose", "itchy watery eyes", "itchy throat or ears", "post-nasal drip", "fatigue from disturbed sleep"],
+      "precautions": [
+        "Keep windows closed during high pollen count periods and use HEPA air purifiers",
+        "Wash bedding weekly in hot water (above 130°F / 54°C) to eliminate dust mites",
+        "Rinse nasal passages with sterile isotonic saline solution (Neti pot / saline spray)",
+        "Shower and change clothes immediately after prolonged outdoor activity during pollen season",
+        "Discuss non-drowsy antihistamines or intranasal corticosteroid sprays with your pharmacist"
+      ],
+      "whenToSeeDoctor": "See an allergist if symptoms are unresponsive to standard OTC therapies, worsen into chronic sinusitis, or trigger asthma symptoms.",
+      "relatedFaqIds": ["faq-allergy-1"]
+    },
+    {
+      "id": "urinary-tract-infection",
+      "name": "Urinary Tract Infection (UTI)",
+      "category": "Urology & Infectious Disease",
+      "severity": "Moderate",
+      "description": "An infection in any part of the urinary system (kidneys, ureters, bladder, and urethra), most commonly caused by Escherichia coli entering the urethra.",
+      "symptoms": ["burning sensation during urination (dysuria)", "frequent or intense urge to urinate despite low output", "cloudy or strong-smelling urine", "pink, red, or cola-colored urine (hematuria)", "pelvic or lower abdominal discomfort", "low-grade fever"],
+      "precautions": [
+        "Drink plenty of water (2-3 liters/day) to help flush bacteria from the urinary tract",
+        "Urinate promptly when the urge arises and empty bladder completely",
+        "Wipe from front to back after using the toilet to prevent bacterial transfer",
+        "Urinate shortly after sexual intercourse",
+        "Avoid potentially irritating feminine hygiene sprays, douches, and scented bath products"
+      ],
+      "whenToSeeDoctor": "Urgent medical care is needed if you develop flank or lower back pain, high fever, shaking chills, nausea, or vomiting, as these indicate possible upper urinary tract infection (pyelonephritis).",
+      "relatedFaqIds": ["faq-uti-1"]
+    },
+    {
+      "id": "osteoarthritis",
+      "name": "Osteoarthritis",
+      "category": "Rheumatology & Orthopedics",
+      "severity": "Moderate",
+      "description": "The most common form of arthritis, caused by gradual wear-and-tear degradation of joint cartilage and underlying bone over time, most frequently affecting knees, hips, hands, and spine.",
+      "symptoms": ["joint pain during or after movement", "joint stiffness especially upon awakening or after inactivity", "tenderness when light pressure is applied", "loss of joint flexibility and range of motion", "grating sensation or popping sounds (crepitus)", "bone spurs (osteophytes)"],
+      "precautions": [
+        "Participate in low-impact physical activities like swimming, cycling, and walking to strengthen peri-articular muscles",
+        "Maintain an optimal body weight to decrease mechanical stress on weight-bearing joints",
+        "Use hot compresses for stiffness and cold packs for acute joint inflammation",
+        "Utilize supportive footwear or orthotics recommended by a physical therapist",
+        "Incorporate joint flexibility and stretching routines into daily activities"
+      ],
+      "whenToSeeDoctor": "See an orthopedic specialist or rheumatologist if joint swelling, redness, and warm tenderness appear suddenly, or if joint pain impedes routine daily mobility.",
+      "relatedFaqIds": ["faq-oa-1"]
+    },
+    {
+      "id": "influenza",
+      "name": "Influenza (Flu)",
+      "category": "Infectious Disease",
+      "severity": "Moderate to High",
+      "description": "A contagious respiratory illness caused by influenza viruses infecting the nose, throat, and sometimes the lungs. It has an abrupt onset compared to the common cold.",
+      "symptoms": ["abrupt high fever and chills", "intense muscle or body aches (myalgia)", "severe fatigue and exhaustion", "dry cough", "sore throat", "runny or stuffy nose", "headache"],
+      "precautions": [
+        "Get an annual influenza vaccination",
+        "Get abundant bed rest and drink fluids (water, broth, electrolyte solutions)",
+        "Practice strict hand hygiene and respiratory etiquette (masking, covering coughs)",
+        "Isolate at home until fever-free for at least 24 hours without fever-reducing medications",
+        "High-risk individuals (elderly, immunocompromised, pregnant) should consult a doctor within 48 hours for potential antiviral medication (e.g., Oseltamivir)"
+      ],
+      "whenToSeeDoctor": "Seek immediate emergency evaluation if experiencing difficulty breathing, chest pain, persistent dizziness, confusion, or if symptoms improve but then return with worse fever and cough.",
+      "relatedFaqIds": ["faq-flu-1"]
+    },
+    {
+      "id": "acute-bronchitis",
+      "name": "Acute Bronchitis",
+      "category": "Respiratory",
+      "severity": "Mild to Moderate",
+      "description": "Inflammation of the lining of the bronchial tubes, commonly following a viral upper respiratory infection (cold or flu). The cough can linger for several weeks.",
+      "symptoms": ["persistent cough with or without clear/yellowish/greenish mucus", "fatigue", "mild shortness of breath", "low-grade fever and mild chills", "chest discomfort or soreness from coughing"],
+      "precautions": [
+        "Rest and drink abundant warm fluids like herbal tea with honey to soothe airways",
+        "Use a cool-mist humidifier in bedroom to loosen mucus",
+        "Avoid smoke, vapor, air pollution, and cold outdoor air",
+        "Understand that over 90% of acute bronchitis cases are viral and antibiotics are not indicated unless bacterial superinfection occurs",
+        "Use saline nasal irrigation or OTC cough expectorants as advised by a pharmacist"
+      ],
+      "whenToSeeDoctor": "See a doctor if cough lasts longer than 3 weeks, prevents sleep, produces rust-colored or bloody mucus, or is accompanied by a fever higher than 100.4°F (38°C) or wheezing.",
+      "relatedFaqIds": ["faq-bronch-1"]
+    },
+    {
+      "id": "iron-deficiency-anemia",
+      "name": "Iron Deficiency Anemia",
+      "category": "Hematology",
+      "severity": "Moderate",
+      "description": "A condition in which blood lacks adequate healthy red blood cells due to insufficient iron, preventing hemoglobin synthesis necessary for oxygen transport.",
+      "symptoms": ["extreme fatigue and weakness", "pale skin and conjunctiva", "cold hands and feet", "brittle nails", "headaches or dizziness", "unusual cravings for non-nutritive substances like ice or dirt (pica)", "shortness of breath on light exertion"],
+      "precautions": [
+        "Consume iron-rich foods: lean red meat, poultry, beans, dark leafy greens, lentils, fortified cereals",
+        "Pair plant-based iron sources with Vitamin C (oranges, bell peppers) to enhance absorption",
+        "Avoid drinking coffee, tea, or calcium supplements with iron-rich meals (they inhibit absorption)",
+        "Undergo complete blood count (CBC) and serum ferritin testing to determine deficiency severity",
+        "Take iron supplements strictly under medical supervision to avoid toxicity"
+      ],
+      "whenToSeeDoctor": "Consult your primary care physician to investigate underlying causes, especially if you have heavy menstrual cycles, blood in stool, or unexplained weight loss.",
+      "relatedFaqIds": ["faq-anemia-1"]
+    },
+    {
+      "id": "anxiety-panic-disorder",
+      "name": "Generalized Anxiety & Panic Episodes",
+      "category": "Mental Health & Behavioral",
+      "severity": "Moderate",
+      "description": "Mental health conditions characterized by persistent excessive worry, autonomic arousal, or sudden surges of intense fear/panic that reach a peak within minutes.",
+      "symptoms": ["rapid heart rate (tachycardia)", "hyperventilation or feeling smothered", "trembling or shaking", "sweating", "sense of impending doom or panic", "muscle tension", "insomnia and restlessness", "difficulty concentrating"],
+      "precautions": [
+        "Practice diaphragmatic 'box breathing' (inhale 4s, hold 4s, exhale 4s, hold 4s) during acute spikes",
+        "Apply the 5-4-3-2-1 grounding technique to reconnect with the physical environment",
+        "Gradually reduce caffeine, energy drinks, and nicotine intake",
+        "Establish regular sleep hygiene and engage in daily cardiovascular exercise",
+        "Engage with certified mental health professionals for Cognitive Behavioral Therapy (CBT)"
+      ],
+      "whenToSeeDoctor": "If experiencing physical symptoms for the first time, rule out cardiac/thyroid causes with a physician. If experiencing thoughts of self-harm or suicide, contact 988 Suicide & Crisis Lifeline immediately.",
+      "relatedFaqIds": ["faq-anx-1"]
+    },
+    {
+      "id": "hypothyroidism",
+      "name": "Hypothyroidism (Underactive Thyroid)",
+      "category": "Endocrine",
+      "severity": "Moderate",
+      "description": "A disorder where the thyroid gland does not produce sufficient thyroid hormones (T3/T4), slowing down metabolic processes across organ systems.",
+      "symptoms": ["persistent fatigue", "unexplained weight gain", "increased sensitivity to cold", "constipation", "dry skin and thinning hair", "muscle weakness and joint stiffness", "slowed heart rate", "mood changes or depression"],
+      "precautions": [
+        "Get regular blood tests for TSH (Thyroid Stimulating Hormone) and Free T4",
+        "Take prescribed Levothyroxine on an empty stomach with a full glass of water, 30-60 minutes before breakfast",
+        "Avoid taking calcium, iron supplements, or antacids within 4 hours of thyroid hormone medication",
+        "Maintain a nutrient-dense diet with adequate selenium and zinc",
+        "Keep regular follow-up appointments to titrate dosage based on lab values"
+      ],
+      "whenToSeeDoctor": "Consult an endocrinologist for dosage optimization or if you experience heart palpitations, extreme sluggishness, or swelling in the neck (goiter).",
+      "relatedFaqIds": ["faq-thyroid-1"]
+    },
+    {
+      "id": "covid-19",
+      "name": "COVID-19 (SARS-CoV-2)",
+      "category": "Infectious Disease",
+      "severity": "Mild to Critical",
+      "description": "An infectious respiratory disease caused by the SARS-CoV-2 coronavirus with symptoms ranging from mild upper respiratory irritation to severe viral pneumonia and systemic inflammatory syndrome.",
+      "symptoms": ["fever or chills", "cough", "shortness of breath", "new loss of taste or smell (anosmia/ageusia)", "fatigue", "muscle or body aches", "sore throat", "congestion", "nausea or diarrhea"],
+      "precautions": [
+        "Stay up-to-date with recommended COVID-19 vaccination boosters",
+        "Isolate and test using an at-home rapid antigen test or PCR test upon symptom onset",
+        "Monitor blood oxygen saturation with a pulse oximeter (normal is 95% or higher)",
+        "Wear a high-filtration mask (N95/KN95) when around vulnerable individuals",
+        "Stay hydrated and utilize over-the-counter fever reducers if appropriate"
+      ],
+      "whenToSeeDoctor": "Seek emergency medical care immediately for trouble breathing, persistent pain/pressure in chest, new confusion, pale/gray/blue-colored skin, lips, or nail beds, or pulse oximeter readings below 92%.",
+      "relatedFaqIds": ["faq-covid-1"]
+    },
+    {
+      "id": "eczema-atopic-dermatitis",
+      "name": "Atopic Dermatitis (Eczema)",
+      "category": "Dermatology",
+      "severity": "Mild to Moderate",
+      "description": "A chronic inflammatory skin condition characterized by an impaired skin barrier, leading to dry, itchy, red, and irritated skin patches that fluctuate in severity.",
+      "symptoms": ["intense itching (pruritus) especially at night", "dry, cracked, scaly skin", "red to brownish-gray patches", "small raised bumps that may leak fluid and crust when scratched", "thickened, leathery skin (lichenification)"],
+      "precautions": [
+        "Moisturize skin at least twice daily with thick ceramide-rich creams or ointments within 3 minutes of bathing",
+        "Take short, lukewarm showers and avoid harsh scrubbing",
+        "Use fragrance-free, hypoallergenic soaps and laundry detergents",
+        "Wear loose, breathable cotton clothing and avoid coarse wool fabrics",
+        "Keep fingernails trimmed short to minimize skin trauma from nighttime scratching"
+      ],
+      "whenToSeeDoctor": "Consult a dermatologist if skin becomes painful, shows honey-colored crusting or pus-filled blisters (signs of secondary bacterial infection like impetigo), or fails to respond to OTC barrier creams.",
+      "relatedFaqIds": ["faq-eczema-1"]
+    }
+  ],
+  "faqs": [
+    {
+      "id": "faq-htn-1",
+      "question": "What is considered a normal blood pressure reading versus high blood pressure?",
+      "answer": "According to the American Heart Association (AHA):\n- **Normal**: Less than 120/80 mmHg\n- **Elevated**: Systolic 120-129 mmHg AND Diastolic less than 80 mmHg\n- **Stage 1 Hypertension**: Systolic 130-139 mmHg OR Diastolic 80-89 mmHg\n- **Stage 2 Hypertension**: Systolic 140 mmHg or higher OR Diastolic 90 mmHg or higher\n- **Hypertensive Crisis**: Higher than 180 and/or higher than 120 mmHg (requires immediate medical attention).",
+      "tags": ["blood pressure", "hypertension", "vitals", "cardiology"]
+    },
+    {
+      "id": "faq-htn-2",
+      "question": "How can I naturally lower my blood pressure without medication?",
+      "answer": "Evidence-based lifestyle modifications include:\n1. **DASH Diet**: Eating whole grains, fruits, vegetables, and low-fat dairy while reducing saturated fat.\n2. **Sodium Reduction**: Limiting dietary sodium to under 1,500-2,300 mg per day.\n3. **Aerobic Exercise**: At least 30 minutes of moderate activity 5 days a week (can lower systolic BP by 5-8 mmHg).\n4. **Weight Management**: Every 1 kg (2.2 lbs) lost can lower blood pressure by roughly 1 mmHg.\n5. **Limit Alcohol & Quit Smoking**: Smoking increases arterial stiffness.\n6. **Stress Reduction**: Daily meditation, slow deep breathing, and quality sleep (7-8 hours).",
+      "tags": ["hypertension", "diet", "lifestyle", "prevention"]
+    },
+    {
+      "id": "faq-dia-1",
+      "question": "What are the early warning signs of diabetes?",
+      "answer": "The classic 3 'Ps' of diabetes are:\n1. **Polyuria**: Frequent urination, especially at night, as kidneys attempt to expel excess glucose.\n2. **Polydipsia**: Excessive, unquenchable thirst resulting from fluid loss.\n3. **Polyphagia**: Constant extreme hunger because cells are unable to utilize glucose without effective insulin.\nOther early signs include chronic unexplained fatigue, blurred vision, slow-healing cuts, and recurrent yeast infections.",
+      "tags": ["diabetes", "symptoms", "glucose", "endocrine"]
+    },
+    {
+      "id": "faq-dia-2",
+      "question": "What is an HbA1c test and what do the numbers mean?",
+      "answer": "The Hemoglobin A1c (HbA1c) test measures the average percentage of blood sugar attached to hemoglobin over the past 2-3 months:\n- **Normal**: Below 5.7%\n- **Prediabetes**: 5.7% to 6.4%\n- **Diabetes**: 6.5% or higher on two separate tests.\nFor most non-pregnant adults with diabetes, the general target is an HbA1c under 7.0%, though individual goals are personalized by a physician.",
+      "tags": ["diabetes", "a1c", "lab tests", "glucose"]
+    },
+    {
+      "id": "faq-asthma-1",
+      "question": "What is the difference between a controller inhaler and a rescue inhaler for asthma?",
+      "answer": "- **Rescue Inhalers** (e.g., Albuterol): Fast-acting bronchodilators that relax airway smooth muscles within minutes. They are used during acute flare-ups or sudden shortness of breath. They do NOT treat underlying inflammation.\n- **Controller/Maintenance Inhalers** (e.g., Inhaled Corticosteroids like Fluticasone or Budesonide): Taken daily on a strict schedule to reduce chronic airway inflammation and prevent attacks. They do not provide immediate relief during an acute attack.",
+      "tags": ["asthma", "inhalers", "respiratory", "medications"]
+    },
+    {
+      "id": "faq-mig-1",
+      "question": "How can I tell the difference between a tension headache and a migraine?",
+      "answer": "- **Tension Headache**: Usually mild-to-moderate, feels like a tight band or dull ache wrapping around both sides of the head. Typically not worsened by physical movement and not accompanied by nausea or visual disturbances.\n- **Migraine**: Moderate-to-severe, throbbing or pulsating pain, often unilateral (one side of head). Worsened by routine physical activity. Frequently accompanied by nausea, vomiting, photophobia (light sensitivity), phonophobia (sound sensitivity), and sometimes preceding sensory/visual auras.",
+      "tags": ["headache", "migraine", "neurology", "symptoms"]
+    },
+    {
+      "id": "faq-gerd-1",
+      "question": "What lifestyle changes provide the best relief for acid reflux / GERD?",
+      "answer": "Key clinical recommendations for GERD management include:\n1. Elevate the head of your bed by 6 inches with risers or a wedge pillow.\n2. Avoid lying down for at least 3 hours after eating.\n3. Eat smaller, frequent meals and avoid gorging.\n4. Avoid common triggers: chocolate, peppermint, citrus fruits, tomato sauce, garlic, onions, spicy food, coffee, alcohol, and carbonated beverages.\n5. Avoid tight-fitting abdominal garments.\n6. Maintain a healthy body weight.",
+      "tags": ["gerd", "acid reflux", "heartburn", "gastroenterology"]
+    },
+    {
+      "id": "faq-flu-1",
+      "question": "How do I know if I have a common cold or the flu?",
+      "answer": "- **Onset**: Flu symptoms appear abruptly (within hours), while colds develop gradually over 1-3 days.\n- **Fever**: Flu often causes high fevers (100°F-102°F+), while colds rarely cause significant fever in adults.\n- **Body Aches & Fatigue**: Flu causes intense, debilitating muscle aches and profound fatigue. Colds cause mild fatigue and minor aches.\n- **Upper Respiratory**: Colds frequently present with sneezing, stuffy nose, and sore throat early on; flu focuses heavily on systemic exhaustion, dry cough, and fever.",
+      "tags": ["flu", "cold", "influenza", "virus", "symptoms"]
+    },
+    {
+      "id": "faq-anemia-1",
+      "question": "What foods are highest in iron and how can I maximize absorption?",
+      "answer": "There are two dietary forms of iron:\n1. **Heme Iron** (higher bioavailability): Lean beef, poultry, organ meats, sardines, oysters.\n2. **Non-Heme Iron** (plant-based): Lentils, chickpeas, spinach, tofu, pumpkin seeds, fortified cereals.\n\n**Absorption Optimization**:\n- Pair non-heme iron foods with Vitamin C sources (citrus, bell peppers, broccoli, tomatoes).\n- Avoid consuming calcium-rich dairy, antacids, green tea, or coffee during iron-rich meals, as phytates, polyphenols, and calcium inhibit absorption.",
+      "tags": ["anemia", "iron", "nutrition", "diet"]
+    },
+    {
+      "id": "faq-uti-1",
+      "question": "Can a urinary tract infection (UTI) go away on its own without antibiotics?",
+      "answer": "While very mild urinary discomfort may occasionally resolve with aggressive hydration, true bacterial UTIs typically require prescription antibiotics targeted to the offending pathogen (such as E. coli).\nLeaving a UTI untreated carries significant risk of the infection ascending through the ureters into the kidneys (pyelonephritis), which can cause permanent kidney damage or systemic sepsis. If you suspect a UTI, see a healthcare provider for a urinalysis and appropriate culture-guided treatment.",
+      "tags": ["uti", "antibiotics", "urology", "infection"]
+    },
+    {
+      "id": "faq-allergy-1",
+      "question": "What are the most effective treatments for seasonal allergies?",
+      "answer": "1. **Intranasal Steroid Sprays** (e.g., Fluticasone, Budesonide): Considered first-line therapy for moderate-to-severe symptoms; most effective when used consistently every day.\n2. **Second-Generation Antihistamines** (e.g., Cetirizine, Loratadine, Fexofenadine): Non-drowsy oral medications that block histamine receptors.\n3. **Saline Nasal Irrigation**: Gently flushes allergens and inflammatory mediators out of the sinus passages.\n4. **Environmental Control**: Keep windows closed during pollen peaks, shower before bed, and use HEPA air purifiers.",
+      "tags": ["allergies", "antihistamine", "immunology", "rhinitis"]
+    },
+    {
+      "id": "faq-covid-1",
+      "question": "When should someone with COVID-19 seek emergency medical care?",
+      "answer": "Seek emergency medical services immediately if you or someone you are caring for exhibits any of these warning signs:\n- Trouble breathing or severe shortness of breath\n- Persistent chest pain, pressure, or tightness\n- New confusion or inability to wake or stay awake\n- Pale, gray, or blue-colored skin, lips, or nail beds (cyanosis)\n- Oxygen saturation reading below 92% on a home pulse oximeter.",
+      "tags": ["covid-19", "emergency", "respiratory", "warning signs"]
+    }
+  ]
+}

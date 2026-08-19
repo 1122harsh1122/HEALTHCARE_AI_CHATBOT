@@ -1,0 +1,404 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { evaluateMedicalSafety, CLINICAL_DISCLAIMER } from '@/lib/guardrails';
+import { queryKnowledgeBase } from '@/lib/rag';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+/**
+ * Serverless streaming chat endpoint for Healthcare AI Assistant
+ */
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { messages, provider = 'auto' } = body;
+
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return NextResponse.json(
+        { error: 'Invalid request payload: messages array is required' },
+        { status: 400 }
+      );
+    }
+
+    const lastMessage = messages[messages.length - 1];
+    const userPrompt = lastMessage.content || '';
+
+    // Step 1: Execute Medical Safety Guardrails Pre-Check
+    const safetyAssessment = evaluateMedicalSafety(userPrompt);
+
+    if (safetyAssessment.isEmergency) {
+      return createEmergencyStreamResponse(safetyAssessment.safeRefusalMessage || '');
+    }
+
+    if (safetyAssessment.isDosageQuery || safetyAssessment.isPrescriptionRequest) {
+      return createSafeRefusalStreamResponse(safetyAssessment.safeRefusalMessage || '');
+    }
+
+    // Step 2: Execute Kaggle Dataset RAG Retrieval
+    const ragResult = queryKnowledgeBase(userPrompt, 3, 2);
+
+    const conditionNames = ragResult.conditions.map((c) => c.name);
+    const faqQuestions = ragResult.faqs.map((f) => f.question);
+
+    // Step 3: Construct Clinical System Prompt
+    const systemPrompt = `You are CarePulse AI, a knowledgeable, empathetic, and responsible clinical AI assistant built to provide evidence-based healthcare education and symptom guidance.
+
+STRICT CLINICAL RULES & GUIDELINES:
+1. Informational Guidance Only: You provide medical education, lifestyle recommendations, and symptom triage. You NEVER make a definitive clinical diagnosis or replace a licensed physician.
+2. Safety & Limitations: Never recommend specific drug dosages or write prescriptions.
+3. Clarity & Empathy: Organize answers with clear markdown headers, bulleted lists for precautions, and concise explanations.
+4. Kaggle Healthcare Reference Context: Use the verified clinical context provided below to ensure scientific accuracy.
+5. Mandatory Closing: Always conclude your guidance by stating when the patient should consult a doctor or seek immediate emergency care if symptoms worsen.
+
+${ragResult.contextSnippet ? ragResult.contextSnippet : 'Note: No specific Kaggle condition record matched closely. Provide general, evidence-based medical guidance.'}
+`;
+
+    // Step 4: Stream response from selected LLM provider or High-Precision Clinical Fallback
+    const geminiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY;
+    const openaiKey = process.env.OPENAI_API_KEY;
+    const groqKey = process.env.GROQ_API_KEY;
+
+    // Check if live API keys are present
+    if (geminiKey && (provider === 'auto' || provider === 'gemini')) {
+      return await streamGeminiResponse(systemPrompt, messages, geminiKey, conditionNames, faqQuestions);
+    }
+
+    if (openaiKey && (provider === 'auto' || provider === 'openai')) {
+      return await streamOpenAIResponse(systemPrompt, messages, openaiKey, conditionNames, faqQuestions);
+    }
+
+    if (groqKey && (provider === 'auto' || provider === 'groq')) {
+      return await streamGroqResponse(systemPrompt, messages, groqKey, conditionNames, faqQuestions);
+    }
+
+    // Step 5: High-Precision Clinical Dataset Synthesis Mode (Runs smoothly on Vercel even without API keys!)
+    return streamClinicalSimulation(userPrompt, ragResult, conditionNames, faqQuestions);
+
+  } catch (error: any) {
+    console.error('API /api/chat error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Internal healthcare assistant processing error' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * Stream emergency response
+ */
+function createEmergencyStreamResponse(emergencyText: string) {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoder.encode(emergencyText));
+      controller.close();
+    }
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'X-Is-Emergency': 'true',
+      'X-Guardrail-Blocked': 'true'
+    }
+  });
+}
+
+/**
+ * Stream safe refusal response
+ */
+function createSafeRefusalStreamResponse(refusalText: string) {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoder.encode(refusalText));
+      controller.close();
+    }
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'X-Guardrail-Blocked': 'true'
+    }
+  });
+}
+
+/**
+ * Google Gemini Live Streaming
+ */
+async function streamGeminiResponse(
+  systemPrompt: string,
+  messages: any[],
+  apiKey: string,
+  conditionNames: string[],
+  faqQuestions: string[]
+) {
+  const model = 'gemini-1.5-flash';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
+
+  const contents = [
+    {
+      role: 'user',
+      parts: [{ text: systemPrompt }]
+    },
+    {
+      role: 'model',
+      parts: [{ text: 'Understood. I will act as a responsible healthcare assistant utilizing verified Kaggle clinical context.' }]
+    },
+    ...messages.map((m) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }]
+    }))
+  ];
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Gemini API returned status ${response.status}`);
+  }
+
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+
+  const transformStream = new TransformStream({
+    transform(chunk, controller) {
+      const text = decoder.decode(chunk);
+      const lines = text.split('\n');
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const data = JSON.parse(line.slice(6));
+            const candidateText =
+              data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (candidateText) {
+              controller.enqueue(encoder.encode(candidateText));
+            }
+          } catch (e) {
+            // ignore non-json keep-alives
+          }
+        }
+      }
+    }
+  });
+
+  return new Response(response.body?.pipeThrough(transformStream), {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'X-RAG-Conditions': encodeURIComponent(JSON.stringify(conditionNames)),
+      'X-RAG-Faqs': encodeURIComponent(JSON.stringify(faqQuestions))
+    }
+  });
+}
+
+/**
+ * OpenAI Live Streaming
+ */
+async function streamOpenAIResponse(
+  systemPrompt: string,
+  messages: any[],
+  apiKey: string,
+  conditionNames: string[],
+  faqQuestions: string[]
+) {
+  const url = 'https://api.openai.com/v1/chat/completions';
+  const payload = {
+    model: 'gpt-4o-mini',
+    stream: true,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      ...messages.map((m) => ({ role: m.role, content: m.content }))
+    ]
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`OpenAI API returned status ${response.status}`);
+  }
+
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+
+  const transformStream = new TransformStream({
+    transform(chunk, controller) {
+      const text = decoder.decode(chunk);
+      const lines = text.split('\n');
+      for (const line of lines) {
+        if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+          try {
+            const data = JSON.parse(line.slice(6));
+            const content = data.choices?.[0]?.delta?.content;
+            if (content) {
+              controller.enqueue(encoder.encode(content));
+            }
+          } catch (e) {
+            // ignore parsing errors on stream chunks
+          }
+        }
+      }
+    }
+  });
+
+  return new Response(response.body?.pipeThrough(transformStream), {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'X-RAG-Conditions': encodeURIComponent(JSON.stringify(conditionNames)),
+      'X-RAG-Faqs': encodeURIComponent(JSON.stringify(faqQuestions))
+    }
+  });
+}
+
+/**
+ * Groq Live Streaming
+ */
+async function streamGroqResponse(
+  systemPrompt: string,
+  messages: any[],
+  apiKey: string,
+  conditionNames: string[],
+  faqQuestions: string[]
+) {
+  const url = 'https://api.groq.com/openai/v1/chat/completions';
+  const payload = {
+    model: 'llama-3.1-8b-instant',
+    stream: true,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      ...messages.map((m) => ({ role: m.role, content: m.content }))
+    ]
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Groq API returned status ${response.status}`);
+  }
+
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+
+  const transformStream = new TransformStream({
+    transform(chunk, controller) {
+      const text = decoder.decode(chunk);
+      const lines = text.split('\n');
+      for (const line of lines) {
+        if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+          try {
+            const data = JSON.parse(line.slice(6));
+            const content = data.choices?.[0]?.delta?.content;
+            if (content) {
+              controller.enqueue(encoder.encode(content));
+            }
+          } catch (e) {
+            // ignore
+          }
+        }
+      }
+    }
+  });
+
+  return new Response(response.body?.pipeThrough(transformStream), {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'X-RAG-Conditions': encodeURIComponent(JSON.stringify(conditionNames)),
+      'X-RAG-Faqs': encodeURIComponent(JSON.stringify(faqQuestions))
+    }
+  });
+}
+
+/**
+ * High-Precision Clinical Dataset Synthesis Engine
+ * Provides instant, verified streaming answers even without third-party API keys.
+ */
+function streamClinicalSimulation(
+  userPrompt: string,
+  ragResult: any,
+  conditionNames: string[],
+  faqQuestions: string[]
+) {
+  let responseText = '';
+
+  if (ragResult.faqs.length > 0) {
+    const topFaq = ragResult.faqs[0];
+    responseText += `### ${topFaq.question}\n\n`;
+    responseText += `${topFaq.answer}\n\n`;
+
+    if (ragResult.conditions.length > 0) {
+      const topCond = ragResult.conditions[0];
+      responseText += `#### Related Clinical Condition: **${topCond.name}**\n`;
+      responseText += `${topCond.description}\n\n`;
+      responseText += `**Evidence-Based Precautions & Self-Care:**\n`;
+      topCond.precautions.forEach((p: string) => {
+        responseText += `- ${p}\n`;
+      });
+      responseText += `\n**When to Seek Immediate Medical Evaluation:**\n${topCond.whenToSeeDoctor}\n\n`;
+    }
+  } else if (ragResult.conditions.length > 0) {
+    const primaryCond = ragResult.conditions[0];
+    responseText += `### Clinical Evaluation: **${primaryCond.name}**\n\n`;
+    responseText += `**Overview & Pathology:**\n${primaryCond.description}\n\n`;
+    responseText += `**Key Associated Symptoms:**\n${primaryCond.symptoms.map((s: string) => `• ${s}`).join('\n')}\n\n`;
+    responseText += `**Evidence-Based Precautions & Non-Pharmacological Management:**\n`;
+    primaryCond.precautions.forEach((p: string) => {
+      responseText += `- ${p}\n`;
+    });
+    responseText += `\n**Clinical Red Flags & When to See a Doctor:**\n${primaryCond.whenToSeeDoctor}\n\n`;
+
+    if (ragResult.conditions.length > 1) {
+      responseText += `#### Differential Considerations from Kaggle Healthcare Knowledge Base:\n`;
+      ragResult.conditions.slice(1).forEach((other: any) => {
+        responseText += `- **${other.name}** (${other.category}): Severity ${other.severity}. ${other.description.slice(0, 140)}...\n`;
+      });
+      responseText += `\n`;
+    }
+  } else {
+    responseText += `### Healthcare Guidance & General Self-Care\n\n`;
+    responseText += `Thank you for reaching out. Based on your inquiry regarding *"${userPrompt.slice(0, 100)}"*:\n\n`;
+    responseText += `1. **Symptom Monitoring:** Keep a written log of when symptoms occur, their severity (scale 1-10), and any mitigating factors.\n`;
+    responseText += `2. **Hydration & Rest:** Ensure adequate fluid intake (2-3L/day unless fluid-restricted) and rest in a well-ventilated environment.\n`;
+    responseText += `3. **When to Seek Evaluation:** If symptoms persist beyond 48-72 hours, worsen in intensity, or interfere with daily activities, consult your primary care physician.\n\n`;
+  }
+
+  responseText += `\n---\n${CLINICAL_DISCLAIMER}`;
+
+  // Stream text in small chunks for realistic streaming UI feel
+  const encoder = new TextEncoder();
+  const chunks = responseText.match(/.{1,16}/g) || [responseText];
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      for (const chunk of chunks) {
+        controller.enqueue(encoder.encode(chunk));
+        await new Promise((resolve) => setTimeout(resolve, 25));
+      }
+      controller.close();
+    }
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'X-RAG-Conditions': encodeURIComponent(JSON.stringify(conditionNames)),
+      'X-RAG-Faqs': encodeURIComponent(JSON.stringify(faqQuestions))
+    }
+  });
+}
