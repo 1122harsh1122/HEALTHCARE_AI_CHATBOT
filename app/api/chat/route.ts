@@ -54,20 +54,23 @@ export async function POST(req: NextRequest) {
     const conditionNames = ragResult.conditions.map((c) => c.name);
     const faqQuestions = ragResult.faqs.map((f) => f.question);
 
-    // Step 3: Construct Clinical System Prompt
-    const systemPrompt = `You are CarePulse AI, a knowledgeable, empathetic, and responsible clinical AI assistant built to provide evidence-based healthcare education and symptom guidance.
+    // Step 5: Construct Clinical System Prompt with Strict Brevity Guidelines
+    const systemPrompt = `You are CarePulse AI, a concise, empathetic clinical information assistant grounded in Kaggle healthcare datasets.
 
-STRICT CLINICAL RULES & GUIDELINES:
-1. Informational Guidance Only: You provide medical education, lifestyle recommendations, and symptom triage. You NEVER make a definitive clinical diagnosis or replace a licensed physician.
-2. Safety & Limitations: Never recommend specific drug dosages or write prescriptions.
-3. Clarity & Empathy: Organize answers with clear markdown headers, bulleted lists for precautions, and concise explanations.
-4. Kaggle Healthcare Reference Context: Use the verified clinical context provided below to ensure scientific accuracy.
-5. Mandatory Closing: Always conclude your guidance by stating when the patient should consult a doctor or seek immediate emergency care if symptoms worsen.
+STRICT CONCISENESS & FORMATTING RULES:
+1. BREVITY FIRST: Keep answers short, direct, and scannable (maximum 120-150 words total). Avoid long introductory fluff and essays.
+2. RESPONSE STRUCTURE:
+   - **Overview**: 1 concise sentence explaining the condition or answer.
+   - **Key Symptoms**: 3-4 short bullet points (if applicable).
+   - **Actionable Self-Care**: 3-4 practical, evidence-based precaution bullets.
+   - **When to See a Doctor**: 1 concise closing sentence.
+3. CLINICAL BOUNDARIES: Never calculate drug dosages, prescribe medicines, or provide formal physical diagnoses.
+4. ACCURACY: Ground your guidance in the verified Kaggle clinical context provided below.
 
-${ragResult.contextSnippet ? ragResult.contextSnippet : 'Note: No specific Kaggle condition record matched closely. Provide general, evidence-based medical guidance.'}
+${ragResult.contextSnippet ? ragResult.contextSnippet : 'Provide concise, evidence-based medical education and symptom guidance.'}
 `;
 
-    // Step 4: Stream response from selected LLM provider or High-Precision Clinical Fallback
+    // Step 6: Stream response from selected LLM provider or High-Precision Clinical Fallback
     const geminiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY;
     const openaiKey = process.env.OPENAI_API_KEY;
     const groqKey = process.env.GROQ_API_KEY;
@@ -85,7 +88,7 @@ ${ragResult.contextSnippet ? ragResult.contextSnippet : 'Note: No specific Kaggl
       return await streamGroqResponse(systemPrompt, messages, groqKey, conditionNames, faqQuestions);
     }
 
-    // Step 5: High-Precision Clinical Dataset Synthesis Mode (Runs smoothly on Vercel even without API keys!)
+    // High-Precision Clinical Dataset Synthesis Mode
     return streamClinicalSimulation(userPrompt, ragResult, conditionNames, faqQuestions);
 
   } catch (error: any) {
@@ -378,50 +381,45 @@ function streamClinicalSimulation(
 
   if (ragResult.faqs.length > 0) {
     const topFaq = ragResult.faqs[0];
-    responseText += `### ${topFaq.question}\n\n`;
+    responseText += `### 💡 ${topFaq.question}\n\n`;
     responseText += `${topFaq.answer}\n\n`;
 
     if (ragResult.conditions.length > 0) {
       const topCond = ragResult.conditions[0];
-      responseText += `#### Related Clinical Condition: **${topCond.name}**\n`;
-      responseText += `${topCond.description}\n\n`;
-      responseText += `**Evidence-Based Precautions & Self-Care:**\n`;
-      topCond.precautions.forEach((p: string) => {
+      responseText += `#### 🩺 Related: **${topCond.name}**\n`;
+      responseText += `**Key Self-Care Points:**\n`;
+      topCond.precautions.slice(0, 3).forEach((p: string) => {
         responseText += `- ${p}\n`;
       });
-      responseText += `\n**When to Seek Immediate Medical Evaluation:**\n${topCond.whenToSeeDoctor}\n\n`;
+      responseText += `\n**When to Consult a Doctor:** ${topCond.whenToSeeDoctor}\n\n`;
     }
   } else if (ragResult.conditions.length > 0) {
     const primaryCond = ragResult.conditions[0];
-    responseText += `### Clinical Evaluation: **${primaryCond.name}**\n\n`;
-    responseText += `**Overview & Pathology:**\n${primaryCond.description}\n\n`;
-    responseText += `**Key Associated Symptoms:**\n${primaryCond.symptoms.map((s: string) => `• ${s}`).join('\n')}\n\n`;
-    responseText += `**Evidence-Based Precautions & Non-Pharmacological Management:**\n`;
-    primaryCond.precautions.forEach((p: string) => {
+    responseText += `### 🩺 ${primaryCond.name}\n\n`;
+    responseText += `**Overview:** ${primaryCond.description}\n\n`;
+
+    responseText += `**Key Symptoms:**\n`;
+    primaryCond.symptoms.slice(0, 4).forEach((s: string) => {
+      responseText += `- ${s}\n`;
+    });
+
+    responseText += `\n**Actionable Self-Care & Precautions:**\n`;
+    primaryCond.precautions.slice(0, 4).forEach((p: string) => {
       responseText += `- ${p}\n`;
     });
-    responseText += `\n**Clinical Red Flags & When to See a Doctor:**\n${primaryCond.whenToSeeDoctor}\n\n`;
 
-    if (ragResult.conditions.length > 1) {
-      responseText += `#### Differential Considerations from Kaggle Healthcare Knowledge Base:\n`;
-      ragResult.conditions.slice(1).forEach((other: any) => {
-        responseText += `- **${other.name}** (${other.category}): Severity ${other.severity}. ${other.description.slice(0, 140)}...\n`;
-      });
-      responseText += `\n`;
-    }
+    responseText += `\n**When to Seek Medical Care:** ${primaryCond.whenToSeeDoctor}\n\n`;
   } else {
-    // No relevant dataset match found — return an honest, helpful "not found" response
-    responseText += `### No Exact Match Found in Kaggle Knowledge Base\n\n`;
-    responseText += `I couldn't find a condition or FAQ in the current Kaggle clinical dataset that closely matches your query about **"${userPrompt.slice(0, 120)}"**.\n\n`;
-    responseText += `**This could mean:**\n`;
-    responseText += `- The condition or term may be listed under a different name (try using the common name, e.g. "heart attack" instead of "myocardial infarction", or vice versa).\n`;
-    responseText += `- The topic may not yet be in the current version of the Kaggle healthcare dataset.\n\n`;
-    responseText += `**Currently covered topics include:**\n`;
-    responseText += `Hypertension, Type 2 Diabetes, Asthma, Migraine, GERD / Acid Reflux, Allergic Rhinitis, Urinary Tract Infection, Osteoarthritis, Influenza, Acute Bronchitis, Iron Deficiency Anemia, Anxiety / Panic Disorder, Hypothyroidism, COVID-19, Eczema, and Heart Attack / Myocardial Infarction.\n\n`;
-    responseText += `**Suggested next step:** Please try rephrasing your question or use one of the quick topic chips at the top of the page. If you are experiencing an active medical emergency, call **911 / 112** immediately.\n\n`;
+    // No relevant dataset match found — return clean guidance
+    responseText += `### 🔍 Topic Not Found in Dataset\n\n`;
+    responseText += `I couldn't find an exact clinical match for **"${userPrompt.slice(0, 80)}"** in the current database.\n\n`;
+    responseText += `**Suggestions:**\n`;
+    responseText += `- Try searching with simpler terms (e.g., *"stomach pain"*, *"fever"*, *"migraine"*, *"skin rash"*, *"back pain"*).\n`;
+    responseText += `- Click any of the **Quick Topic chips** above to explore covered conditions.\n\n`;
+    responseText += `*Emergency: For severe symptoms like chest pressure or breathlessness, call **112 / 108** immediately.*\n\n`;
   }
 
-  responseText += `\n---\n${CLINICAL_DISCLAIMER}`;
+  responseText += `---\n${CLINICAL_DISCLAIMER}`;
 
   // Stream text in small chunks for realistic streaming UI feel
   const encoder = new TextEncoder();
